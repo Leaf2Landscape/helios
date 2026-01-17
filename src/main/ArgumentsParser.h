@@ -94,6 +94,11 @@ public:
    */
   bool parseCalcEchowidth();
   /**
+   * @brief Parse the write scan angles flag specification
+   * @return True if write scan angles flag was enabled, False otherwise
+   */
+  bool parseWriteScanAngles();
+  /**
    * @brief Parse the seed for RandomnessGenerator from invocation arguments
    * @return Seed for RandomnessGenerator
    */

@@ -220,6 +220,11 @@ ScanningDevice::doSimStep(
     platformPosition + headRelativeEmitterPosition;
   // Calculate absolute beam attitude:
   Rotation absoluteBeamAttitude = calcAbsoluteBeamAttitude(platformAttitude);
+  
+  // Get scan angles from the deflector
+  double across_track_rad = beamDeflector->getAcrossTrackAngle_rad();
+  double down_track_rad = beamDeflector->getDownTrackAngle_rad();
+
   // Handle noise
   handleSimStepNoise(absoluteBeamOrigin, absoluteBeamAttitude);
   // Handle pulse computation
@@ -235,14 +240,18 @@ ScanningDevice::doSimStep(
                                           currentGpsTime,
                                           legIndex,
                                           state_currentPulseNumber,
-                                          devIdx));
+                                          devIdx,
+                                          across_track_rad,
+                                          down_track_rad));
   } else { // Simulated pulse with NO mechanical error
     handlePulseComputation(SimulatedPulse(absoluteBeamOrigin,
                                           absoluteBeamAttitude,
                                           currentGpsTime,
                                           legIndex,
                                           state_currentPulseNumber,
-                                          devIdx));
+                                          devIdx,
+                                          across_track_rad,
+                                          down_track_rad));
   }
 }
 

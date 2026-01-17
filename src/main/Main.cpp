@@ -132,6 +132,7 @@ main(int argc, char** argv)
              ap.parseWriteWaveform(),
              ap.parseWritePulse(),
              ap.parseCalcEchowidth(),
+             ap.parseWriteScanAngles(),
              ap.parseParallelizationStrategy(),
              ap.parseNJobs(),
              ap.parseChunkSize(),

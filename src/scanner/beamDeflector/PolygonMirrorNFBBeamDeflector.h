@@ -20,27 +20,27 @@ protected:
 	 */
 	double cfg_device_scanAngleEffectiveMax_rad = 0;
 
-    // /**
-    //  * @brief The forward/backward tilt angle calculated in the last doSimStep call (radians).
-    //  */
-    //!!double state_currentRollAngle_rad = 0.0; // NEW member variable
+  /**
+   * @brief The forward/backward tilt angle calculated in the last doSimStep call (radians).
+   */
+  double state_currentForwardAngle_rad = 0.0;
 
-    int state_currentLineCounter = 0;
+  int state_currentLineCounter = 0;
 
-    /**
-     * @brief The calculated maximum effective forward angle based on settings (radians).
-     */
-    double cached_maxSetRollAngle_rad = std::numeric_limits<double>::quiet_NaN(); // NEW member variable, init to NaN
+  /**
+   * @brief The calculated maximum effective forward angle based on settings (radians).
+   */
+  double cached_maxSetRollAngle_rad = std::numeric_limits<double>::quiet_NaN(); // NEW member variable, init to NaN
 
-    /**
-     * @brief The calculated maximum effective forward angle based on settings (radians).
-     */
-    double cached_maxSetForwardAngle_rad = std::numeric_limits<double>::quiet_NaN(); // NEW member variable, init to NaN
+  /**
+   * @brief The calculated maximum effective forward angle based on settings (radians).
+   */
+  double cached_maxSetForwardAngle_rad = std::numeric_limits<double>::quiet_NaN(); // NEW member variable, init to NaN
 
-    ///**
-    // * @brief Simulation time for tracking mirror cycle progress
-    // */
-    ////double state_simTime = 0.0;
+  ///**
+  // * @brief Simulation time for tracking mirror cycle progress
+  // */
+  ////double state_simTime = 0.0;
     
 private:
     ///**
@@ -111,6 +111,20 @@ public:
 	 * @brief Obtain the maximum effective scan angle in radians.
 	 * @see PolygonMirrorNFBBeamDeflector::cfg_device_scanAngleEffectiveMax_rad
 	 */
-	double getScanAngleEffectiveMax_rad() const
-	{return cfg_device_scanAngleEffectiveMax_rad;}
+	double getScanAngleEffectiveMax_rad() const {
+    return cfg_device_scanAngleEffectiveMax_rad;
+  }
+
+  /**
+   * @see AbstractBeamDeflector::getAcrossTrackAngle_rad
+   */
+  double getAcrossTrackAngle_rad() const override {
+    return this->state_currentBeamAngle_rad;
+  }
+  /**
+   * @see AbstractBeamDeflector::getDownTrackAngle_rad
+   */
+  double getDownTrackAngle_rad() const override {
+    return this->state_currentForwardAngle_rad;
+  }
 };

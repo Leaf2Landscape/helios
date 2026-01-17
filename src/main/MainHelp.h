@@ -53,6 +53,9 @@ printMainHelp()
     << "fitting\n"
     << "\t\t\tBy default the full waveform is NOT fitted\n\n"
 
+    << "\t\t--writeScanAngles : Use this flag to write the across-track and\n"
+    << "\t\t\tdown-track scan angles to the output files.\n\n"
+
     << "\t\t--fullwaveNoise : Use this flag to add noise when computing "
     << "full waveform\n"
     << "\t\t\tBy default: full waveform noise is disabled\n\n"

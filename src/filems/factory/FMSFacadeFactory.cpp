@@ -18,6 +18,7 @@ helios::filems::FMSFacadeFactory::buildFacade(std::string const& outdir,
                                               bool const las10,
                                               bool const zipOutput,
                                               bool const splitByChannel,
+                                              bool const writeScanAngles,
                                               Survey& survey,
                                               bool const updateSurvey)
 {
@@ -76,6 +77,7 @@ helios::filems::FMSFacadeFactory::buildFacade(std::string const& outdir,
   fmsWrite.setMeasurementWriterLas10(las10);
   fmsWrite.setMeasurementWriterZipOutput(zipOutput);
   fmsWrite.setMeasurementWriterLasScale(lasScale);
+  fmsWrite.getMeasurementWriter()->setWriteScanAngles(writeScanAngles);
 
   // Configure trajectory writer
   fmsWrite.setTrajectoryWriter(std::make_shared<TrajectoryWriter>());

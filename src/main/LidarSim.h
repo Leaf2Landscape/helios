@@ -71,6 +71,7 @@ public:
             bool writeWaveform = false,
             bool writePulse = false,
             bool calcEchowidth = false,
+            bool writeScanAngles = false,
             int parallelizationStrategy = 0,
             size_t njobs = 0,
             int chunkSize = 32,

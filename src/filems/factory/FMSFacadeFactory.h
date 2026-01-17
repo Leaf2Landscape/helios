@@ -38,6 +38,8 @@ public:
    * @param splitByChannel Flag to specify whether the measurements must be
    *  split by channel (True) or not (False). If True, then each scanning
    *  device will be written to a different file even for the same leg.
+   * @param writeScanAngles Flag to specify whether to write scan angles to
+   *  output files (True) or not (False).
    * @param survey The survey to which the facade must be connected
    * @return Built FMS facade
    */
@@ -47,6 +49,7 @@ public:
                                          bool const las10,
                                          bool const zipOutput,
                                          bool const splitByChannel,
+                                         bool const writeScanAngles,
                                          Survey& survey,
                                          bool const updateSurvey = true);
   /**
@@ -67,6 +70,7 @@ public:
                        lasOutput,
                        las10,
                        zipOutput,
+                       false,
                        false,
                        survey,
                        updateSurvey);

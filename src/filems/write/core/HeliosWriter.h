@@ -53,6 +53,11 @@ protected:
    * @see helios::filems::HeliosWriter::lasOutput
    */
   double lasScale = 0.0001;
+  /**
+   * @brief Flag specifying if scan angles should be written to output
+   * files (true) or not (false)
+   */
+  bool writeScanAngles = false;
 
 public:
   // ***  CONSTRUCTION / DESTRUCTION  *** //
@@ -139,6 +144,14 @@ public:
    * @see filems::HeliosWriter::lasScale
    */
   inline void setLasScale(double const lasScale) { this->lasScale = lasScale; }
+  /**
+   * @brief Set the write scan angles flag.
+   * @see filems::HeliosWriter::writeScanAngles
+   */
+  inline void setWriteScanAngles(bool const flag)
+  {
+    this->writeScanAngles = flag;
+  }
 };
 
 #include <filems/write/core/HeliosWriter.tpp>

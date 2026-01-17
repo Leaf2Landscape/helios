@@ -173,6 +173,20 @@ public:
   {
     return state_currentBeamAngle_rad;
   }
+  
+  /**
+   * @brief Get the current across-track scan angle in radians.
+   * Subclasses should override this to provide the specific value.
+   * @return The across-track scan angle in radians.
+   */
+  virtual double getAcrossTrackAngle_rad() const { return 0.0; }
+
+  /**
+   * @brief Get the current down-track scan angle in radians.
+   * Subclasses should override this to provide the specific value.
+   * @return The down-track scan angle in radians.
+   */
+  virtual double getDownTrackAngle_rad() const { return 0.0; }.
 
   /**
    * @brief Check whether the deflector simulates mechanical errors

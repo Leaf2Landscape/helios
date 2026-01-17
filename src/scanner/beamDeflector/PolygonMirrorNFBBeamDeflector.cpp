@@ -177,7 +177,7 @@ void PolygonMirrorNFBBeamDeflector::doSimStep() {
     // Clamp phase to the valid [0, 1] range for robustness
     phase = glm::clamp(phase, 0.0, 1.0);
     // Calculate the forward/backward tilt angle (local variable for calculation)
-    double state_currentForwardAngle_rad = 0.0; // Use local variable for calculation clarity
+    //double state_currentForwardAngle_rad = 0.0; // Use local variable for calculation clarity
     
     if (this->state_currentLineCounter == 0) { // Nadir face
         state_currentForwardAngle_rad = MathConverter::degreesToRadians(0.0);

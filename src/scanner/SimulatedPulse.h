@@ -67,6 +67,16 @@ protected:
    */
   double mechanicalRangeError = 0.0;
 
+  /**
+   * @brief The across-track scan angle of the pulse in radians.
+   */
+  double acrossTrackAngle_rad = 0.0;
+
+  /**
+   * @brief The down-track scan angle of the pulse in radians.
+   */
+  double downTrackAngle_rad = 0.0;
+
 public:
   // ***  CONSTRUCTION / DESTRUCTION  *** //
   // ************************************ //
@@ -85,7 +95,9 @@ public:
                  double const time_ns,
                  unsigned int legIndex,
                  int const pulseNumber,
-                 size_t const deviceIndex)
+                 size_t const deviceIndex,
+                 double const acrossTrackAngle_rad = 0.0,
+                 double const downTrackAngle_rad = 0.0)
     : TimedPulse(origin, attitude, time_ns)
     , legIndex(legIndex)
     , pulseNumber(pulseNumber)
@@ -93,6 +105,8 @@ public:
     , mechanicalError(false)
     , exactAttitude(attitude)
     , mechanicalRangeError(0.0)
+    , acrossTrackAngle_rad(acrossTrackAngle_rad)
+    , downTrackAngle_rad(downTrackAngle_rad)
   {
   }
   /**
@@ -109,7 +123,9 @@ public:
                  double const time_ns,
                  unsigned int legIndex,
                  int const pulseNumber,
-                 size_t const deviceIndex)
+                 size_t const deviceIndex,
+                 double const acrossTrackAngle_rad = 0.0,
+                 double const downTrackAngle_rad = 0.0)
     : TimedPulse(origin, attitude, time_ns)
     , legIndex(legIndex)
     , pulseNumber(pulseNumber)
@@ -117,6 +133,8 @@ public:
     , mechanicalError(true)
     , exactAttitude(exactAttitude)
     , mechanicalRangeError(mechanicalRangeError)
+    , acrossTrackAngle_rad(acrossTrackAngle_rad)
+    , downTrackAngle_rad(downTrackAngle_rad)
   {
   }
   ~SimulatedPulse() override = default;

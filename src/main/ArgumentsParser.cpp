@@ -117,6 +117,12 @@ ArgumentsParser::parseCalcEchowidth()
   return findIndexOfArgument("--calcEchowidth") >= 0;
 }
 
+bool
+ArgumentsParser::parseWriteScanAngles()
+{
+  return findIndexOfArgument("--writeScanAngles") >= 0;
+}
+
 std::string
 ArgumentsParser::parseSeed()
 {

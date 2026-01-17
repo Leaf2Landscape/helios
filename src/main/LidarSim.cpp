@@ -23,6 +23,7 @@ LidarSim::init(std::string surveyPath,
                bool writeWaveform,
                bool writePulse,
                bool calcEchowidth,
+               bool writeScanAngles,
                int parallelizationStrategy,
                size_t njobs,
                int chunkSize,
@@ -57,6 +58,7 @@ LidarSim::init(std::string surveyPath,
      << "writeWaveform: " << writeWaveform << "\n"
      << "writePulse: " << writePulse << "\n"
      << "calcEchowidth: " << calcEchowidth << "\n"
+     << "writeScanAngles: " << writeScanAngles << "\n"
      << "fullWaveNoise: " << fullWaveNoise << "\n"
      << "splitByChannel: " << splitByChannel << "\n"
      << "parallelization: " << parallelizationStrategy << "\n"
@@ -101,7 +103,7 @@ LidarSim::init(std::string surveyPath,
 
   // Build main facade for File Management System, associated to the survey
   std::shared_ptr<fms::FMSFacade> fms = fms::FMSFacadeFactory().buildFacade(
-    outputPath, lasScale, lasOutput, las10, zipOutput, splitByChannel, *survey);
+    outputPath, lasScale, lasOutput, las10, zipOutput, splitByChannel, writeScanAngles, *survey);
 
   // Build thread pool for parallel computation
   /*

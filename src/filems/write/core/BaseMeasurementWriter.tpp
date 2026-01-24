@@ -94,6 +94,7 @@ void BaseMeasurementWriter<WriteArgs ...>::setOutputFilePath(
             sfw = makeWriter(
                 wt,                                     // Writer type
                 path,                                   // Output path
+                this->writeScanAngles,                  // Write scan angles flag
                 isZipOutput(),                          // Zip flag
                 getLasScale(),                          // Scale factor
                 shift,                                  // Offset

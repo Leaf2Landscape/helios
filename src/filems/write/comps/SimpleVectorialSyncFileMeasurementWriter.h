@@ -44,11 +44,12 @@ public:
    * @see filems::SimpleSyncFileWriter::SimpleSyncFileWriter
    */
   explicit SimpleVectorialSyncFileMeasurementWriter(
-    const std::string& path,
-    std::ios_base::openmode om = std::ios_base::app)
+    const std::string& path, 
+    std::ios_base::openmode om = std::ios_base::app,
+    bool writeScanAngles = false)
     : SimpleSyncFileWriter<vector<Measurement> const&, glm::dvec3 const&>(path,
                                                                           om)
-    , dmws(this->ofs)
+    , dmws(this->ofs, writeScanAngles)
   {
     this->writeStrategy =
       std::make_shared<VectorialWriteStrategy<Measurement, glm::dvec3 const&>>(

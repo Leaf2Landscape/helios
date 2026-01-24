@@ -124,6 +124,22 @@ public:
    * @brief Helios amplitude attribute start (LAS extra bytes format)
    */
   I32 ampAttrStart;
+  /**
+   * @brief Index of across track angle attribute in LAS header definition
+   */
+  I32 atAttrIdx;
+  /**
+   * @brief Index of down track angle attribute in LAS header definition
+   */
+  I32 dtAttrIdx;
+  /**
+   * @brief Across track angle attribute start (LAS extra bytes format)
+   */
+  I32 atAttrStart;
+  /**
+   * @brief Down track angle attribute start (LAS extra bytes format)
+   */
+  I32 dtAttrStart;
 
   // ***  CONSTRUCTION / DESTRUCTION  *** //
   // ************************************ //
@@ -140,15 +156,18 @@ public:
    * @see LasWriterSpec::minIntensity
    * @see LasWriterSpec::deltaIntensity
    */
-  explicit LasWriterSpec(const std::string& path,
+  explicit LasWriterSpec(const std::string& path, 
                          double const scaleFactor = 0.0001,
                          glm::dvec3 const offset = glm::dvec3(0, 0, 0),
                          double const minIntensity = 0.0,
-                         double const deltaIntensity = 1000000.0)
+                         double const deltaIntensity = 1000000.0,
+                         bool const writeScanAngles = false)
+    
     : scaleFactor(scaleFactor)
     , offset(offset)
     , minIntensity(minIntensity)
     , deltaIntensity(deltaIntensity)
+    , writeScanAngles(writeScanAngles)
   {
   }
   /**
@@ -173,6 +192,11 @@ public:
     fwiAttrStart = lws.fwiAttrStart;
     hoiAttrStart = lws.hoiAttrStart;
     ampAttrStart = lws.ampAttrStart;
+    atAttrIdx = lws.atAttrIdx;
+    dtAttrIdx = lws.dtAttrIdx;
+    atAttrStart = lws.atAttrStart;
+    dtAttrStart = lws.dtAttrStart;
+    writeScanAngles = lws.writeScanAngles;
   }
   virtual ~LasWriterSpec() = default;
 
@@ -261,6 +285,12 @@ public:
       fwiAttrIdx = lwHeader.add_attribute(fwiAttr);
       hoiAttrIdx = lwHeader.add_attribute(hoiAttr);
       ampAttrIdx = lwHeader.add_attribute(ampAttr);
+      if (writeScanAngles) {
+        LASattribute atAttr(ewType, "AcrossTrackAngle", "Across-track scan angle in radians");
+        LASattribute dtAttr(ewType, "DownTrackAngle", "Down-track scan angle in radians");
+        atAttrIdx = lwHeader.add_attribute(atAttr);
+        dtAttrIdx = lwHeader.add_attribute(dtAttr);
+      }
     } catch (std::exception& e) {
       std::stringstream ss;
       ss << "LasSyncFileWriter failed.\n\tEXCEPTION: " << e.what();
@@ -273,6 +303,10 @@ public:
     fwiAttrStart = lwHeader.get_attribute_start(fwiAttrIdx);
     hoiAttrStart = lwHeader.get_attribute_start(hoiAttrIdx);
     ampAttrStart = lwHeader.get_attribute_start(ampAttrIdx);
+    if (writeScanAngles) {
+      atAttrStart = lwHeader.get_attribute_start(atAttrIdx);
+      dtAttrStart = lwHeader.get_attribute_start(dtAttrIdx);
+    }
   }
 
   // ***  INIT LAS POINT  *** //
@@ -319,10 +353,19 @@ public:
     lwHeader.remove_attribute(fwiAttrIdx);
     lwHeader.remove_attribute(hoiAttrIdx);
     lwHeader.remove_attribute(ampAttrIdx);
+    if (writeScanAngles) {
+      lwHeader.remove_attribute(atAttrIdx);
+      lwHeader.remove_attribute(dtAttrIdx);
+    }
     // free(lwHeader.attributes);
     // free(lwHeader.attribute_starts);
     // free(lwHeader.attribute_sizes);
   }
+private:
+  /**
+   * @brief Flag to control whether to add scan angle attributes.
+   */
+  bool writeScanAngles = false;
 };
 
 }

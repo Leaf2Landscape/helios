@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filems/write/core/HeliosWriter.h>
+#include <filems/write/comps/SyncFileWriter.h>
 
 #include <memory>
 #include <string>

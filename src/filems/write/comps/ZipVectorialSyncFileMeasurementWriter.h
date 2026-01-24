@@ -44,11 +44,12 @@ public:
    */
   explicit ZipVectorialSyncFileMeasurementWriter(
     const std::string& path,
-    int compressionMode = boost::iostreams::zlib::best_compression)
+    int compressionMode = boost::iostreams::zlib::best_compression,
+    bool writeScanAngles = false)
     : ZipSyncFileWriter<std::vector<Measurement> const&, glm::dvec3 const&>(
         path,
         compressionMode)
-    , zmws(this->ofs, *(this->oa))
+    , zmws(this->ofs, *(this->oa), writeScanAngles)
   {
     this->writeStrategy =
       std::make_shared<VectorialWriteStrategy<Measurement, glm::dvec3 const&>>(

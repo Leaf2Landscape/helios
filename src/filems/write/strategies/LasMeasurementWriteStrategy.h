@@ -2,6 +2,7 @@
 
 #include <filems/write/strategies/WriteStrategy.h>
 #include <scanner/Measurement.h>
+#include <MathConverter.h>
 
 #include <glm/glm.hpp>
 #include <laswriter.hpp>
@@ -78,6 +79,14 @@ protected:
    * @see filems::LasWriterSpec::ampAttrStart
    */
   I32 const& ampAttrStart;
+  /**
+   * @see filems::LasWriterSpec::atAttrStart
+   */
+  I32 const& atAttrStart;
+  /**
+   * @see filems::LasWriterSpec::dtAttrStart
+   */
+  I32 const& dtAttrStart;
 
 public:
   // ***  CONSTRUCTION / DESTRUCTION  *** //
@@ -97,7 +106,9 @@ public:
                               I32 const& ewAttrStart,
                               I32 const& fwiAttrStart,
                               I32 const& hoiAttrStart,
-                              I32 const& ampAttrStart)
+                              I32 const& ampAttrStart,
+                              I32 const& atAttrStart,
+                              I32 const& dtAttrStart)
     : lw(lw)
     , lp(lp)
     , scaleFactorInverse(scaleFactorInverse)
@@ -109,6 +120,8 @@ public:
     , fwiAttrStart(fwiAttrStart)
     , hoiAttrStart(hoiAttrStart)
     , ampAttrStart(ampAttrStart)
+    , atAttrStart(atAttrStart)
+    , dtAttrStart(dtAttrStart)
   {
   }
   virtual ~LasMeasurementWriteStrategy() = default;
@@ -170,6 +183,11 @@ protected:
     lp.set_attribute(fwiAttrStart, I32(m.fullwaveIndex));
     lp.set_attribute(hoiAttrStart, I32(std::stoi(m.hitObjectId)));
     lp.set_attribute(ampAttrStart, F64(m.intensity));
+    // If the start indices are valid (i.e., not -1), write scan angles
+    if(atAttrStart > -1) {
+      lp.set_attribute(atAttrStart, F64(m.acrossTrackAngle_rad));
+      lp.set_attribute(dtAttrStart, F64(m.downTrackAngle_rad));
+    }
   }
 };
 

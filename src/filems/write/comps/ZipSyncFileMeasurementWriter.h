@@ -31,12 +31,13 @@ public:
    */
   explicit ZipSyncFileMeasurementWriter(
     const std::string& path,
-    int compressionMode = boost::iostreams::zlib::best_compression)
+    int compressionMode = boost::iostreams::zlib::best_compression,
+    bool writeScanAngles = false)
     : ZipSyncFileWriter<Measurement const&, glm::dvec3 const&>(path,
                                                                compressionMode)
   {
     this->writeStrategy =
-      std::make_shared<ZipMeasurementWriteStrategy>(this->ofs, *(this->oa));
+      std::make_shared<ZipMeasurementWriteStrategy>(this->ofs, *(this->oa), writeScanAngles);
   }
   virtual ~ZipSyncFileMeasurementWriter() = default;
 };

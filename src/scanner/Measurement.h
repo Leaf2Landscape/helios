@@ -72,6 +72,14 @@ public:
    * @brief Measurement GPS time
    */
   double gpsTime;
+  /**
+   * @brief The across-track scan angle of the measurement in radians.
+   */
+  double acrossTrackAngle_rad = 0.0;
+  /**
+   * @brief The down-track scan angle of the measurement in radians.
+   */
+  double downTrackAngle_rad = 0.0;
 
   // ***  CONSTRUCTION / DESTRUCTION  *** //
   // ************************************ //
@@ -95,6 +103,8 @@ public:
     fullwaveIndex = m.fullwaveIndex;
     classification = m.classification;
     gpsTime = m.gpsTime;
+    acrossTrackAngle_rad = m.acrossTrackAngle_rad;
+    downTrackAngle_rad = m.downTrackAngle_rad;
   }
   virtual ~Measurement() = default;
 
@@ -106,7 +116,7 @@ public:
         << m.beamOrigin << "," << m.distance << "," << m.intensity << ","
         << m.echo_width << "," << m.returnNumber << "," << m.pulseReturnNumber
         << "," << m.fullwaveIndex << "," << m.classification << ","
-        << m.gpsTime;
+        << m.gpsTime << "," << m.acrossTrackAngle_rad << "," << m.downTrackAngle_rad;
     return out;
   }
 };

@@ -32,6 +32,7 @@ namespace fs = boost::filesystem;
 #include "OscillatingMirrorBeamDeflector.h"
 #include "PolygonMirrorBeamDeflector.h"
 #include "PolygonMirrorNFBBeamDeflector.h"
+#include "TlsPolygonMirrorBeamDeflector.h" 
 #include "RisleyBeamDeflector.h"
 #include <scanner/EvalScannerHead.h>
 #include <scanner/beamDeflector/evaluable/EvalPolygonMirrorBeamDeflector.h>
@@ -873,12 +874,14 @@ XmlAssetsLoader::createScannerFromXml(tinyxml2::XMLElement* scannerNode)
     // Parse max number of returns per pulse
     scanner->setMaxNOR(
       boost::get<int>(XmlUtils::getAttribute(scannerNode, "maxNOR", "int", 0)));
+    // Create and parse scanner components with dependency injection
+    std::shared_ptr<ScannerHead> scannerHead = createScannerHeadFromXml(scannerNode);
     // Parse beam deflector
-    scanner->setBeamDeflector(createBeamDeflectorFromXml(scannerNode));
+    scanner->setBeamDeflector(createBeamDeflectorFromXml(scannerNode, scannerHead));
     // Parse detector
     scanner->setDetector(createDetectorFromXml(scannerNode, scanner));
     // Parse scanner head
-    scanner->setScannerHead(createScannerHeadFromXml(scannerNode));
+    scanner->setScannerHead(scannerHead);
     // Parse full waveform settings
     std::shared_ptr<FWFSettings> settings = std::make_shared<FWFSettings>();
     settings->pulseLength_ns = pulseLength_ns;
@@ -893,7 +896,8 @@ XmlAssetsLoader::createScannerFromXml(tinyxml2::XMLElement* scannerNode)
 }
 
 std::shared_ptr<AbstractBeamDeflector>
-XmlAssetsLoader::createBeamDeflectorFromXml(tinyxml2::XMLElement* scannerNode)
+XmlAssetsLoader::createBeamDeflectorFromXml(tinyxml2::XMLElement* scannerNode, 
+                                            std::shared_ptr<ScannerHead> scannerHead)
 {
   // Prepare beam deflector variable
   std::shared_ptr<AbstractBeamDeflector> beamDeflector = nullptr;
@@ -943,27 +947,44 @@ XmlAssetsLoader::createBeamDeflectorFromXml(tinyxml2::XMLElement* scannerNode)
       }
     } else { // Build classical beam deflector
       beamDeflector =
-        std::make_shared<PolygonMirrorBeamDeflector>(scanFreqMax_Hz,
-                                                     scanFreqMin_Hz,
-                                                     scanAngleMax_rad,
-                                                     scanAngleEffectiveMax_rad);
+        std::make_shared<PolygonMirrorBeamDeflector>(
+          scanFreqMax_Hz,
+          scanFreqMin_Hz,
+          scanAngleMax_rad,
+          scanAngleEffectiveMax_rad);
     }
   } else if (str_opticsType == "rotatingnfb") { // Build classical beam deflector
-      double scanAngleEffectiveMax_rad = MathConverter::degreesToRadians(
-        boost::get<double>(XmlUtils::getAttribute(
-            scannerNode, "scanAngleEffectiveMax_deg", "double", 0.0
-            ))
+    double scanAngleEffectiveMax_rad = MathConverter::degreesToRadians(
+      boost::get<double>(XmlUtils::getAttribute(
+        scannerNode, "scanAngleEffectiveMax_deg", "double", 0.0
+        ))
       );
       beamDeflector = std::make_shared<PolygonMirrorNFBBeamDeflector>(
-          scanFreqMax_Hz, scanFreqMin_Hz, scanAngleMax_rad, scanAngleEffectiveMax_rad
-          );
+          scanFreqMax_Hz, 
+          scanFreqMin_Hz, 
+          scanAngleMax_rad, 
+          scanAngleEffectiveMax_rad);
+  
+  } else if (str_opticsType == "tlspolygon") { // Build TLS beam deflector
+    double scanAngleEffectiveMax_rad = MathConverter::degreesToRadians(
+      boost::get<double>(XmlUtils::getAttribute(
+        scannerNode, "scanAngleEffectiveMax_deg", "double", 0.0)));
+      beamDeflector = std::make_shared<TlsPolygonMirrorBeamDeflector>(
+        scanFreqMax_Hz,
+        scanFreqMin_Hz,
+        scanAngleMax_rad,
+        scanAngleEffectiveMax_rad,
+        scannerHead);
+  
   } else if (str_opticsType == "risley") {
     int rotorFreq_1_Hz = boost::get<int>(
       XmlUtils::getAttribute(scannerNode, "rotorFreq1_Hz", "int", 7294));
     int rotorFreq_2_Hz = boost::get<int>(
       XmlUtils::getAttribute(scannerNode, "rotorFreq2_Hz", "int", -4664));
     beamDeflector = std::make_shared<RisleyBeamDeflector>(
-      scanAngleMax_rad, (double)rotorFreq_1_Hz, (double)rotorFreq_2_Hz);
+      scanAngleMax_rad, 
+      (double)rotorFreq_1_Hz, 
+      (double)rotorFreq_2_Hz);
   }
 
   if (beamDeflector == nullptr) {

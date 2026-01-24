@@ -37,14 +37,16 @@ public:
                                                                              0),
                                         double const minIntensity = 0.0,
                                         double const deltaIntensity = 1000000.0,
-                                        bool const createWriter = true)
+                                        bool const createWriter = true,
+                                        bool const writeScanAngles = false)
     : LasSyncFileWriter<Measurement const&, glm::dvec3 const&>(path,
                                                                compress,
                                                                scaleFactor,
                                                                offset,
                                                                minIntensity,
                                                                deltaIntensity,
-                                                               createWriter)
+                                                               createWriter,
+                                                               writeScanAngles)
   {
     // Write strategy
     this->writeStrategy =
@@ -58,7 +60,9 @@ public:
                                                     lws.ewAttrStart,
                                                     lws.fwiAttrStart,
                                                     lws.hoiAttrStart,
-                                                    lws.ampAttrStart);
+                                                    lws.ampAttrStart,
+                                                    lws.atAttrStart,
+                                                    lws.dtAttrStart);
   }
 
   virtual ~LasSyncFileMeasurementWriter()

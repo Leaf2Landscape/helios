@@ -34,8 +34,8 @@ public:
    * @see DirectMeasurementWriteStrategy::DirectMeasurementWriteStrategy
    */
   ZipMeasurementWriteStrategy(std::ofstream& ofs,
-                              boost::archive::binary_oarchive& oa)
-    : DirectMeasurementWriteStrategy(ofs)
+                              boost::archive::binary_oarchive& oa, bool writeScanAngles = false)
+    : DirectMeasurementWriteStrategy(ofs, writeScanAngles)
     , oa(oa)
   {
   }

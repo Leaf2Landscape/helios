@@ -236,7 +236,7 @@ public:
    * @see AbstractBeamDeflector
    */
   std::shared_ptr<AbstractBeamDeflector> createBeamDeflectorFromXml(
-    tinyxml2::XMLElement* scannerNode);
+    tinyxml2::XMLElement* scannerNode, std::shared_ptr<ScannerHead> scannerHead = nullptr);
 
   /**
    * @brief Create a pulse detector from given XML element (node)

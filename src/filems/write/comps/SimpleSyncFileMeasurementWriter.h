@@ -31,11 +31,12 @@ public:
    */
   explicit SimpleSyncFileMeasurementWriter(
     const std::string& path,
-    std::ios_base::openmode om = std::ios_base::app)
+    std::ios_base::openmode om = std::ios_base::app,
+    bool writeScanAngles = false)
     : SimpleSyncFileWriter<Measurement const&, glm::dvec3 const&>(path, om)
   {
     this->writeStrategy =
-      std::make_shared<DirectMeasurementWriteStrategy>(this->ofs);
+      std::make_shared<DirectMeasurementWriteStrategy>(this->ofs, writeScanAngles);
   }
   virtual ~SimpleSyncFileMeasurementWriter() = default;
 };

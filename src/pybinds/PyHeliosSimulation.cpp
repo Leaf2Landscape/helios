@@ -37,6 +37,7 @@ PyHeliosSimulation::PyHeliosSimulation(std::string surveyPath,
                                        bool las10,
                                        bool zipOutput,
                                        bool splitByChannel,
+                                       bool writeScanAngles,
                                        int kdtFactory,
                                        size_t kdtJobs,
                                        size_t kdtSAHLossNodes,
@@ -49,6 +50,7 @@ PyHeliosSimulation::PyHeliosSimulation(std::string surveyPath,
   this->las10 = las10;
   this->zipOutput = zipOutput;
   this->splitByChannel = splitByChannel;
+  this->writeScanAngles = writeScanAngles;
   this->surveyPath = surveyPath;
   this->assetsPath = py_list_to_std_vector<std::string>(assetsPath);
   this->outputPath = outputPath;
@@ -184,6 +186,7 @@ PyHeliosSimulation::start()
                                                        las10,
                                                        zipOutput,
                                                        splitByChannel,
+                                                       writeScanAngles,
                                                        *survey)
                  : nullptr;
 

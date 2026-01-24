@@ -224,6 +224,14 @@ public:
    * @see filems::MeasurementWriter::setLasScale
    */
   void setMeasurementWriterLasScale(double const lasScale);
+  /**
+   * @see filems::HeliosWriter::isWriteScanAngles
+   */
+  bool isMeasurementWriterWriteScanAngles() const;
+  /**
+   * @see filems::HeliosWriter::setWriteScanAngles
+   */
+  void setMeasurementWriterWriteScanAngles(bool const writeScanAngles);
 
   // ***  FACADE TRAJECTORY WRITE METHODS  *** //
   // ***************************************** //

@@ -48,14 +48,16 @@ public:
     std::vector<glm::dvec3> const& offset,
     std::vector<double> const& minIntensity,
     std::vector<double> const& deltaIntensity,
-    bool const createWriter = true)
+    bool const createWriter = true,
+    bool const writeScanAngles = false)
     : LasMultiVectorialSyncFileMeasurementWriter(path,
                                                  compress,
                                                  scaleFactor,
                                                  offset,
                                                  minIntensity,
                                                  deltaIntensity,
-                                                 false)
+                                                 false,
+                                                 writeScanAngles)
   {
     // If construct must create the writers
     if (createWriter) {

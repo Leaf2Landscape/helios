@@ -31,6 +31,7 @@ protected:
    * @brief The output file stream to do the writing
    */
   std::ofstream& ofs;
+  bool writeScanAngles;
 
 public:
   // ***  CONSTRUCTION / DESTRUCTION  *** //
@@ -39,8 +40,8 @@ public:
    * @brief Default constructor for direct measurement write strategy
    * @see DirectMeasurementWriteStrategy::ofs
    */
-  DirectMeasurementWriteStrategy(std::ofstream& ofs)
-    : ofs(ofs)
+  DirectMeasurementWriteStrategy(std::ofstream& ofs, bool writeScanAngles = false)
+    : ofs(ofs), writeScanAngles(writeScanAngles)
   {
   }
   virtual ~DirectMeasurementWriteStrategy() {}
@@ -78,6 +79,10 @@ protected:
        << m.pulseReturnNumber << " " << m.fullwaveIndex << " " << m.hitObjectId
        << " " << m.classification << " " << std::setprecision(9) << std::fixed
        << m.gpsTime / 1000000000.0 << std::endl;
+    if(writeScanAngles) {
+       ss << " " << m.acrossTrackAngle_rad << " " << m.downTrackAngle_rad;
+    }
+    ss << std::endl;
     return ss.str();
   }
 };

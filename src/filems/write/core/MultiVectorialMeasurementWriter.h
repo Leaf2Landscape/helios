@@ -36,6 +36,7 @@ public:
     SyncFileWriter<std::vector<Measurement> const&, glm::dvec3 const&>>
   makeWriter(WriterType const& type,
              std::string const& path,
+             bool const writeScanAngles,
              bool const zipOutput,
              double const lasScale,
              glm::dvec3 shift,
@@ -65,6 +66,7 @@ public:
     return SyncFileMeasurementWriterFactory::makeMultiVectorialWriter(
       type,            // Writer type
       paths,           // Output path
+      writeScanAngles, // Write scan angles flag
       zipOutput,       // Zip flag
       scaleFactors,    // Scale factor
       shifts,          // Offset

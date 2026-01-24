@@ -53,7 +53,8 @@ public:
     glm::dvec3 const offset = glm::dvec3(0, 0, 0),
     double const minIntensity = 0.0,
     double const deltaIntensity = 1000000.0,
-    bool const createWriter = true)
+    bool const createWriter = true,
+    bool const writeScanAngles = false)
     : LasSyncFileWriter<vector<Measurement> const&, glm::dvec3 const&>(
         path,
         compress,
@@ -61,7 +62,8 @@ public:
         offset,
         minIntensity,
         deltaIntensity,
-        false)
+        false,
+        writeScanAngles)
     , lmws(*lw,
            lws.lp,
            lws.scaleFactorInverse,
@@ -72,7 +74,9 @@ public:
            lws.ewAttrStart,
            lws.fwiAttrStart,
            lws.hoiAttrStart,
-           lws.ampAttrStart)
+           lws.ampAttrStart,
+           lws.atAttrStart,
+           lws.dtAttrStart)
   {
     // If construct requires creating the wi
     if (createWriter) {
@@ -89,7 +93,9 @@ public:
                                               lws.ewAttrStart,
                                               lws.fwiAttrStart,
                                               lws.hoiAttrStart,
-                                              lws.ampAttrStart);
+                                              lws.ampAttrStart,
+                                              lws.atAttrStart,
+                                              lws.dtAttrStart);
     }
     // Write strategy
     this->writeStrategy =

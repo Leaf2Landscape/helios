@@ -49,7 +49,8 @@ public:
     std::vector<glm::dvec3> const& offset,
     std::vector<double> const& minIntensity,
     std::vector<double> const& deltaIntensity,
-    bool const createWriter = true)
+    bool const createWriter = true,
+    bool const writeScanAngles = false)
     : MultiLasSyncFileWriter<std::vector<Measurement> const&,
                              glm::dvec3 const&>(path,
                                                 compress,
@@ -57,7 +58,8 @@ public:
                                                 offset,
                                                 minIntensity,
                                                 deltaIntensity,
-                                                createWriter)
+                                                createWriter,
+                                                writeScanAngles)
   {
     if (createWriter) {
       // Build measurement write strategies
@@ -93,7 +95,9 @@ public:
                                                     lws[i].ewAttrStart,
                                                     lws[i].fwiAttrStart,
                                                     lws[i].hoiAttrStart,
-                                                    lws[i].ampAttrStart));
+                                                    lws[i].ampAttrStart,
+                                                    lws[i].atAttrStart,
+                                                    lws[i].dtAttrStart));
     }
   }
   /**

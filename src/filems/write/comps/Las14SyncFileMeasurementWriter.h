@@ -26,14 +26,15 @@ public:
   /**
    * @brief Constructor for the LAS-1.4 synchronous file measurement writer
    */
-  explicit Las14SyncFileMeasurementWriter(const std::string& path,
-                                          bool compress = false,
-                                          double scaleFactor = 0.0001,
-                                          glm::dvec3 offset = glm::dvec3(0,
-                                                                         0,
-                                                                         0),
-                                          double minIntensity = 0.0,
-                                          double deltaIntensity = 1000000.0)
+  explicit Las14SyncFileMeasurementWriter(
+    const std::string& path,
+    bool const compress = false,
+    double const scaleFactor = 0.0001,
+    glm::dvec3 const offset = glm::dvec3(0, 0, 0),
+    double const minIntensity = 0.0,
+    double const deltaIntensity = 1000000.0,
+    bool const createWriter = true,
+    bool const writeScanAngles = false)
     : LasSyncFileMeasurementWriter(
         path,
         compress,
@@ -41,7 +42,8 @@ public:
         offset,
         minIntensity,
         deltaIntensity,
-        false // Prevent parent from creating LAS writer
+        false, // Prevent parent from creating LAS writer
+        writeScanAngles
       ) {};
   ~Las14SyncFileMeasurementWriter() override = default;
 

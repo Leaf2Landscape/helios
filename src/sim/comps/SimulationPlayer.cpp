@@ -156,6 +156,7 @@ SimulationPlayer::restartFileMS(helios::filems::FMSFacade& fms)
       fms.write.isMeasurementWriterLas10(),
       fms.write.isMeasurementWriterZipOutput(),
       fms.write.isSplitByChannel(),
+      fms.write.isMeasurementWriterWriteScanAngles(),
       *static_cast<SurveyPlayback&>(sim).mSurvey,
       false);
   // Replace writer of current facade with writer from new facade

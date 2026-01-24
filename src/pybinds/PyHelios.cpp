@@ -1,3 +1,4 @@
+#define BOOST_PYTHON_MAX_ARITY 20
 #include <Material.h>
 #include <PyBeamDeflectorWrapper.h>
 #include <PyDetectorWrapper.h>
@@ -64,6 +65,7 @@ BOOST_PYTHON_MODULE(_pyhelios)
               list,
               std::string,
               size_t,
+              bool,
               bool,
               bool,
               bool,
@@ -150,6 +152,9 @@ BOOST_PYTHON_MODULE(_pyhelios)
     .add_property("splitByChannel",
                   &PyHeliosSimulation::getSplitByChannel,
                   &PyHeliosSimulation::setSplitByChannel)
+    .add_property("writeScanAngles",
+                  &PyHeliosSimulation::getWriteScanAngles,
+                  &PyHeliosSimulation::setWriteScanAngles)
     .add_property("lasScale",
                   &PyHeliosSimulation::getLasScale,
                   &PyHeliosSimulation::setLasScale)

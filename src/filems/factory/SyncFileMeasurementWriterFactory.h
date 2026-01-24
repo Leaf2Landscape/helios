@@ -80,6 +80,7 @@ public:
   static std::shared_ptr<SyncFileWriter<Measurement const&, glm::dvec3 const&>>
   makeWriter(WriterType const type,
              const std::string& path,
+             bool const writeScanAngles = false,
              bool const compress = false,
              double const scaleFactor = 0.0001,
              glm::dvec3 const offset = glm::dvec3(0, 0, 0),
@@ -94,7 +95,8 @@ public:
           scaleFactor,   // Scale factor
           offset,        // Offset
           minIntensity,  // Min intensity
-          deltaIntensity // Delta intensity
+          deltaIntensity, // Delta intensity
+          false         // createWriter
         );
       case las14Type:
         return std::make_shared<Las14SyncFileMeasurementWriter>(
@@ -103,12 +105,16 @@ public:
           scaleFactor,   // Scale factor
           offset,        // Offset
           minIntensity,  // Min intensity
-          deltaIntensity // Delta intensity
+          deltaIntensity, // Delta intensity
+          true,          // createWriter
+          writeScanAngles // Pass flag for LAS 1.4
         );
       case zipType:
-        return std::make_shared<ZipSyncFileMeasurementWriter>(path);
+        return std::make_shared<ZipSyncFileMeasurementWriter>
+        (path, boost::iostreams::zlib::best_compression, writeScanAngles);
       case simpleType:
-        return std::make_shared<SimpleSyncFileMeasurementWriter>(path);
+        return std::make_shared<SimpleSyncFileMeasurementWriter>
+        (path, std::ios_base::app, writeScanAngles);
     }
 
     // Handle unexpected type
@@ -133,6 +139,7 @@ public:
     SyncFileWriter<std::vector<Measurement> const&, glm::dvec3 const&>>
   makeVectorialWriter(WriterType const type,
                       const std::string& path,
+                      bool const writeScanAngles = false,
                       bool const compress = false,
                       double const scaleFactor = 0.0001,
                       glm::dvec3 const offset = glm::dvec3(0, 0, 0),
@@ -147,8 +154,8 @@ public:
           scaleFactor,   // Scale factor
           offset,        // Offset
           minIntensity,  // Min intensity
-          deltaIntensity // Delta intensity
-        );
+          deltaIntensity, // Delta intensity
+          true);         // createWriter
       case las14Type:
         return std::make_shared<Las14VectorialSyncFileMeasurementWriter>(
           path,          // Output path
@@ -156,12 +163,13 @@ public:
           scaleFactor,   // Scale factor
           offset,        // Offset
           minIntensity,  // Min intensity
-          deltaIntensity // Delta intensity
-        );
+          deltaIntensity, // Delta intensity
+          true,          // createWriter
+          writeScanAngles);
       case zipType:
-        return std::make_shared<ZipVectorialSyncFileMeasurementWriter>(path);
+        return std::make_shared<ZipVectorialSyncFileMeasurementWriter>(path, writeScanAngles);
       case simpleType:
-        return std::make_shared<SimpleVectorialSyncFileMeasurementWriter>(path);
+        return std::make_shared<SimpleVectorialSyncFileMeasurementWriter>(path, std::ios_base::app, writeScanAngles);
     }
 
     // Handle unexpected type
@@ -186,6 +194,7 @@ public:
     SyncFileWriter<std::vector<Measurement> const&, glm::dvec3 const&>>
   makeMultiVectorialWriter(WriterType const type,
                            std::vector<std::string> const& path,
+                           bool const writeScanAngles,
                            bool const compress,
                            std::vector<double> const& scaleFactor,
                            std::vector<glm::dvec3> const& offset,
@@ -200,8 +209,8 @@ public:
           scaleFactor,   // Scale factor
           offset,        // Offset
           minIntensity,  // Min intensity
-          deltaIntensity // Delta intensity
-        );
+          deltaIntensity, // Delta intensity
+          true);          // createWriter
       case las14Type:
         return std::make_shared<Las14MultiVectorialSyncFileMeasurementWriter>(
           path,          // Output path
@@ -209,14 +218,14 @@ public:
           scaleFactor,   // Scale factor
           offset,        // Offset
           minIntensity,  // Min intensity
-          deltaIntensity // Delta intensity
+          deltaIntensity, // Delta intensity
+          true,          // createWriter
+          writeScanAngles
         );
       case zipType:
-        return std::make_shared<ZipMultiVectorialSyncFileMeasurementWriter>(
-          path);
+        return std::make_shared<ZipMultiVectorialSyncFileMeasurementWriter>(path, writeScanAngles);
       case simpleType:
-        return std::make_shared<SimpleMultiVectorialSyncFileMeasurementWriter>(
-          path);
+        return std::make_shared<SimpleMultiVectorialSyncFileMeasurementWriter>(path, writeScanAngles);
     }
 
     // Handle unexpected type

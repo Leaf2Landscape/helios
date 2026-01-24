@@ -579,6 +579,8 @@ FullWaveformPulseRunnable::digestFullWaveform(
     tmp.returnNumber = numReturns + 1;
     tmp.classification = classification;
     tmp.gpsTime = pulse.getTime();
+    tmp.acrossTrackAngle_rad = pulse.getAcrossTrackAngle();
+    tmp.downTrackAngle_rad = pulse.getDownTrackAngle();
 
     pointsMeasurement.push_back(tmp);
     ++numReturns;

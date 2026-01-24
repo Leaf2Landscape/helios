@@ -36,6 +36,7 @@ protected:
    * @see filems::ZipMeasurementWriteStrategy
    */
   std::vector<ZipMeasurementWriteStrategy> zmws;
+  bool writeScanAngles;
 
 public:
   // ***  CONSTRUCTION / DESTRUCTION  *** //
@@ -46,9 +47,10 @@ public:
    */
   explicit ZipMultiVectorialSyncFileMeasurementWriter(
     std::vector<std::string> const& path,
-    int compressionMode = boost::iostreams::zlib::best_compression)
+    int compressionMode = boost::iostreams::zlib::best_compression,
+    bool writeScanAngles = false)
     : ZipMultiSyncFileWriter<std::vector<Measurement> const&,
-                             glm::dvec3 const&>(path, compressionMode)
+                             glm::dvec3 const&>(path, compressionMode), writeScanAngles(writeScanAngles)
   {
     // Build measurement write strategies
     buildMeasurementWriteStrategies();
@@ -72,7 +74,7 @@ public:
     // Build measurement write strategies
     std::size_t const nStreams = path.size();
     for (std::size_t i = 0; i < nStreams; ++i) {
-      zmws.emplace_back(this->ofs[i], *(this->oa[i]));
+      zmws.emplace_back(this->ofs[i], *(this->oa[i]), writeScanAngles);
     }
   }
   /**

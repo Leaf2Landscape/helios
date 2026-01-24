@@ -185,6 +185,26 @@ FMSWriteFacade::setMeasurementWriterLasScale(double const lasScale)
   return mw->setLasScale(lasScale);
 }
 
+bool
+FMSWriteFacade::isMeasurementWriterWriteScanAngles() const
+{
+  // Check it is possible to do the operation
+  validateMeasurementWriter("FMSWriteFacade::isMeasurementWriterWriteScanAngles",
+                            "could not get MeasurementWriter write scan angles flag");
+  // Get the write scan angles flag
+  return mw->isWriteScanAngles();
+}
+
+void
+FMSWriteFacade::setMeasurementWriterWriteScanAngles(bool const writeScanAngles)
+{
+  // Check it is possible to do the operation
+  validateMeasurementWriter("FMSWriteFacade::setMeasurementWriterWriteScanAngles",
+                            "could not set MeasurementWriter write scan angles flag");
+  // Set the write scan angles flag
+  mw->setWriteScanAngles(writeScanAngles);
+}
+
 // ***  FACADE TRAJECTORY WRITE METHODS  *** //
 // ***************************************** //
 void

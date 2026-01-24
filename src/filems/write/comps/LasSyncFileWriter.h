@@ -63,11 +63,12 @@ public:
                              glm::dvec3 const offset = glm::dvec3(0, 0, 0),
                              double const minIntensity = 0.0,
                              double const deltaIntensity = 1000000.0,
-                             bool const createWriter = true
+                             bool const createWriter = true,
+                             bool const writeScanAngles = false
 
                              )
     : SingleSyncFileWriter<WriteArgs...>(path)
-    , lws(path, scaleFactor, offset, minIntensity, deltaIntensity)
+    , lws(path, scaleFactor, offset, minIntensity, deltaIntensity,writeScanAngles)
     , finished(false)
   {
     // If construct must create the writer

@@ -186,7 +186,7 @@ public:
    * Subclasses should override this to provide the specific value.
    * @return The down-track scan angle in radians.
    */
-  virtual double getDownTrackAngle_rad() const { return 0.0; }.
+  virtual double getDownTrackAngle_rad() const { return 0.0; }
 
   /**
    * @brief Check whether the deflector simulates mechanical errors

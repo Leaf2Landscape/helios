@@ -200,6 +200,16 @@ public:
    */
   inline Rotation& getExactAttitudeRef() { return exactAttitude; }
   /**
+   * @brief Obtain the across-track scan angle of the pulse in radians.
+   * @return The across-track scan angle in radians.
+   */
+  inline double getAcrossTrackAngle() const { return acrossTrackAngle_rad; }
+  /**
+   * @brief Obtain the down-track scan angle of the pulse in radians.
+   * @return The down-track scan angle in radians.
+   */
+  inline double getDownTrackAngle() const { return downTrackAngle_rad; }
+  /**
    * @biref Obtain the simulated mechanical range error
    * @return Simulated mechanical range error
    * @see SimulatedPulse::mechanicalRangeError

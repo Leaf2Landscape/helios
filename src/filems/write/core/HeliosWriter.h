@@ -152,6 +152,11 @@ public:
   {
     this->writeScanAngles = flag;
   }
+  /**
+   * @brief Get the write scan angles flag.
+   * @see filems::HeliosWriter::writeScanAngles
+   */
+  inline bool isWriteScanAngles() const { return writeScanAngles; }
 };
 
 #include <filems/write/core/HeliosWriter.tpp>

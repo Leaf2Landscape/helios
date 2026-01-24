@@ -62,6 +62,7 @@ public:
   std::shared_ptr<SyncFileWriter<Measurement const&, glm::dvec3 const&>>
   makeWriter(WriterType const& type,
              std::string const& path,
+             bool const writeScanAngles,
              bool const zipOutput,
              double const lasScale,
              glm::dvec3 shift,
@@ -71,6 +72,7 @@ public:
     return SyncFileMeasurementWriterFactory::makeWriter(
       type,      // Writer type
       path,      // Output path
+      writeScanAngles, // Write scan angles flag
       zipOutput, // Zip flag
       lasScale,  // Scale factor
       shift,     // Offset

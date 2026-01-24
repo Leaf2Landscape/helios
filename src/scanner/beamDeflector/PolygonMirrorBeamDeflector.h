@@ -51,16 +51,29 @@ public:
    * @see AbstractBeamDeflector::doSimStep
    */
   void doSimStep() override;
-
   /**
    * @see AbstractBeamDeflector::getOpticsType
    */
   std::string getOpticsType() const override { return "POLYGON_MIRROR"; }
-
   /**
    * @see AbstractBeamDeflector::lastPulseLeftDevice
    */
   bool lastPulseLeftDevice() override;
+  /**
+   * @see AbstractBeamDeflector::getAcrossTrackAngle_rad
+   */
+  double getAcrossTrackAngle_rad() const override
+  {
+    return this->state_currentBeamAngle_rad;
+  }
+  /**
+   * @see AbstractBeamDeflector::getDownTrackAngle_rad
+   */
+  double getDownTrackAngle_rad() const override
+  {
+    // This simple deflector model has no down-track motion.
+    return 0.0;
+  }
   /**
    * @brief Obtain the maximum effective scan angle in radians.
    * @see PolygonMirrorBeamDeflector::cfg_device_scanAngleEffectiveMax_rad

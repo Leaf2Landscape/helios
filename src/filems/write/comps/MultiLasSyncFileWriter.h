@@ -54,15 +54,16 @@ public:
                                   std::vector<glm::dvec3> const& offset,
                                   std::vector<double> const& minIntensity,
                                   std::vector<double> const& deltaIntensity,
-                                  bool const createWriters = true)
+                                  bool const createWriters = true,
+                                  bool const writeScanAngles = false)
     : MultiSyncFileWriter<WriteArgs...>(path)
     , finished(false)
   {
     // Initialize the specification for each LAS writer
     size_t nWriters = path.size();
     for (size_t i = 0; i < nWriters; ++i) {
-      lws.emplace_back(
-        path[i], scaleFactor[i], offset[i], minIntensity[i], deltaIntensity[i]);
+      lws.emplace_back(path[i], scaleFactor[i], offset[i],
+         minIntensity[i], deltaIntensity[i],writeScanAngles);
     }
     // If construct must create the writers
     if (createWriters) {

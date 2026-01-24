@@ -46,6 +46,7 @@ private:
   bool las10 = false;
   bool zipOutput = false;
   bool splitByChannel = false;
+  bool writeScanAngles = false;
   double lasScale = 0.0001;
   std::shared_ptr<PulseThreadPoolInterface> pulseThreadPool;
   int kdtFactory = 4;
@@ -81,6 +82,7 @@ public:
                      bool las10 = false,
                      bool zipOutput = false,
                      bool splitByChannel = false,
+                     bool writeScanAngles = false,
                      int kdtFactory = 4,
                      size_t kdtJobs = 0,
                      size_t kdtSAHLossNodes = 32,
@@ -316,7 +318,15 @@ public:
         "simulations.");
     this->splitByChannel = splitByChannel_;
   }
-
+  bool getWriteScanAngles() { return writeScanAngles; }
+  void setWriteScanAngles(bool writeScanAngles_)
+  {
+    if (started)
+      throw PyHeliosException(
+        "Cannot modify writeScanAngles flag for already started "
+        "simulations.");
+    this->writeScanAngles = writeScanAngles_;
+  }
   double getLasScale() { return lasScale; }
   void setLasScale(double const lasScale)
   {

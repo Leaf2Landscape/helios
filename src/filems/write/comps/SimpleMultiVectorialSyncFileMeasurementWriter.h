@@ -32,6 +32,7 @@ protected:
    *  ( filems::SimpleMultiSyncFileWriter::writeStrategy )
    */
   std::vector<DirectMeasurementWriteStrategy> dmws;
+  bool writeScanAngles;
 
 public:
   // ***  CONSTRUCTION / DESTRUCTION  *** //
@@ -43,9 +44,10 @@ public:
    */
   explicit SimpleMultiVectorialSyncFileMeasurementWriter(
     std::vector<std::string> const& path,
-    std::ios_base::openmode om = std::ios_base::app)
+    std::ios_base::openmode om = std::ios_base::app,
+    bool writeScanAngles = false)
     : SimpleMultiSyncFileWriter<std::vector<Measurement> const&,
-                                glm::dvec3 const&>(path, om)
+                                glm::dvec3 const&>(path, om), writeScanAngles(writeScanAngles)
   {
     // Build measurement write strategies
     buildMeasurementWriteStrategies();
@@ -69,7 +71,7 @@ public:
     // Build measurement write strategies
     size_t const nStreams = path.size();
     for (size_t i = 0; i < nStreams; ++i) {
-      dmws.emplace_back(ofs[i]);
+      dmws.emplace_back(ofs[i], writeScanAngles);
     }
   }
   /**

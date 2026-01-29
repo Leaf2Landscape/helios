@@ -251,13 +251,13 @@ public:
 
     // Update Point Data Format to support new return number / classes
     lwHeader.point_data_format = 6;
-    lwHeader.point_data_record_length = 50;
+    lwHeader.point_data_record_length = 30;
 
-    // Adds the byte difference between LAS 1.4 and LAS 1.0 (350 - 227)
-    lwHeader.header_size += 148;
+    // Adds the byte difference between LAS 1.4 and LAS 1.0 (375 - 227)
+    lwHeader.header_size = 375;
 
     // Adds the byte difference to the data point offset
-    lwHeader.offset_to_point_data += 148;
+    lwHeader.offset_to_point_data = 375;
   }
 
   // ***  EXTRA ATTRIBUTES  *** //

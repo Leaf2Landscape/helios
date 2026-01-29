@@ -72,6 +72,10 @@ public:
   }
   double getGpsTime() { return F64((m.gpsTime) / 1000000000.0); }
   void setGpsTime(double gpsTime) { m.gpsTime = gpsTime * 1000000000.0; }
+  double getAcrossTrackAngle() { return m.acrossTrackAngle_rad; }
+  void setAcrossTrackAngle(double acrossAngle) { m.acrossTrackAngle_rad = acrossAngle; }
+  double getDownTrackAngle() { return m.downTrackAngle_rad; }
+  void setDownTrackAngle(double downAngle) { m.downTrackAngle_rad = downAngle; }
 };
 
 }

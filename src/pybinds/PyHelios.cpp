@@ -1157,7 +1157,13 @@ BOOST_PYTHON_MODULE(_pyhelios)
                   &PyMeasurementWrapper::setClassification)
     .add_property("gpsTime",
                   &PyMeasurementWrapper::getGpsTime,
-                  &PyMeasurementWrapper::setGpsTime);
+                  &PyMeasurementWrapper::setGpsTime)
+    .add_property("acrossTrackAngle",
+                  &PyMeasurementWrapper::getAcrossTrackAngle,
+                  &PyMeasurementWrapper::setAcrossTrackAngle)
+    .add_property("downTrackAngle",
+                  &PyMeasurementWrapper::getDownTrackAngle,
+                  &PyMeasurementWrapper::setDownTrackAngle);
 
   // Register TrajectoryVector
   class_<PyTrajectoryVectorWrapper>("TrajectoryVector", no_init)

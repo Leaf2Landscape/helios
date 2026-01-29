@@ -1465,12 +1465,12 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
       if(optics == "tlspolygon"){
         std::shared_ptr<TlsPolygonMirrorBeamDeflector> tlspmbd =
           std::static_pointer_cast<TlsPolygonMirrorBeamDeflector>(_deflec);
-        tlspmbd->cfg_device_scanAngleEffectiveMax_rad =
+        tlspmbd->cfg_device_scanAngleMax_rad =
           MathConverter::degreesToRadians(XmlUtils::getAttributeCast<double>(
             chan,
             "scanAngleEffectiveMax_deg",
             MathConverter::radiansToDegrees(
-              tlspmbd->cfg_device_scanAngleEffectiveMax_rad)));
+              tlspmbd->cfg_device_scanAngleMax_rad)));
       }
       // Risley beam deflector updates
       if (optics == "risley") {

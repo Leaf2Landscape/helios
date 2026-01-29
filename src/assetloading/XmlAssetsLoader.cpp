@@ -1400,15 +1400,18 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
         (optics=="rotatingnfb" &&
          std::dynamic_pointer_cast<PolygonMirrorNFBBeamDeflector>(deflec)!=
            nullptr) ||
+        (optics == "tlspolygon" &&
+         std::dynamic_pointer_cast<TlsPolygonMirrorBeamDeflector>(deflec) !=
+           nullptr) ||
         (optics == "risley" &&
          std::dynamic_pointer_cast<RisleyBeamDeflector>(deflec) != nullptr);
       if (!deflectorsMatch) { // Assign new beam deflector, dont update
-        scanner->setBeamDeflector(createBeamDeflectorFromXml(chan), idx);
+        scanner->setBeamDeflector(createBeamDeflectorFromXml(chan, scanHead), idx);
         updateDeflector = false;
       }
     }
     if (updateDeflector) {
-      std::string optics = scannerNode->Attribute("optics");
+      std::string optics = XmlUtils::hasAttribute(chan, "optics") ? chan->Attribute("optics") : scannerNode->Attribute("optics");
       scanner->setBeamDeflector(deflec->clone(), idx);
       std::shared_ptr<AbstractBeamDeflector> _deflec =
         scanner->getBeamDeflector(idx);
@@ -1447,7 +1450,7 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
             MathConverter::radiansToDegrees(
               pmbd->cfg_device_scanAngleMax_rad)));
       }
-      // Polygon mirror beam deflector updates
+      // NFB Polygon mirror beam deflector updates
       if(optics == "rotatingnfb"){
         std::shared_ptr<PolygonMirrorNFBBeamDeflector> pmnfbbd =
           std::static_pointer_cast<PolygonMirrorNFBBeamDeflector>(_deflec);
@@ -1457,6 +1460,17 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
             "scanAngleEffectiveMax_deg",
             MathConverter::radiansToDegrees(
               pmnfbbd->cfg_device_scanAngleMax_rad)));
+      }
+      // TLS polygon mirror beam deflector updates
+      if(optics == "tlspolygon"){
+        std::shared_ptr<TlsPolygonMirrorBeamDeflector> tlspmbd =
+          std::static_pointer_cast<TlsPolygonMirrorBeamDeflector>(_deflec);
+        tlspmbd->cfg_device_scanAngleEffectiveMax_rad =
+          MathConverter::degreesToRadians(XmlUtils::getAttributeCast<double>(
+            chan,
+            "scanAngleEffectiveMax_deg",
+            MathConverter::radiansToDegrees(
+              tlspmbd->cfg_device_scanAngleEffectiveMax_rad)));
       }
       // Risley beam deflector updates
       if (optics == "risley") {

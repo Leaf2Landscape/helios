@@ -1411,7 +1411,7 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
       }
     }
     if (updateDeflector) {
-      std::string optics = XmlUtils::hasAttribute(chan, "optics") ? chan->Attribute("optics") : scannerNode->Attribute("optics");
+      std::string optics = scannerNode->Attribute("optics");
       scanner->setBeamDeflector(deflec->clone(), idx);
       std::shared_ptr<AbstractBeamDeflector> _deflec =
         scanner->getBeamDeflector(idx);

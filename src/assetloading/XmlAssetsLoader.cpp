@@ -863,7 +863,7 @@ XmlAssetsLoader::createScannerFromXml(tinyxml2::XMLElement* scannerNode)
                                               rangeErrExpr);
     // Parse max number of returns per pulse
     scanner->setMaxNOR(
-      boost::get<int>(XmlUtils::getAttribute(scannerNode, "maxNOR", "int", 0)));
+      XmlUtils::getAttributeCast<int>(scannerNode, "maxNOR", 0));
     // Create and parse scanner components with dependency injection
     std::shared_ptr<ScannerHead> scannerHead = createScannerHeadFromXml(scannerNode);
     // Parse beam deflector

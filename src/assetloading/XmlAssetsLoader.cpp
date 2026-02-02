@@ -963,17 +963,17 @@ XmlAssetsLoader::createBeamDeflectorFromXml(tinyxml2::XMLElement* scannerNode,
       scanAngleEffectiveMax_rad);
   }
   
-  else if (str_opticsType == "tlspolygon") { // Build TLS beam deflector
-    double scanAngleEffectiveMax_rad =
-      MathConverter::degreesToRadians(XmlUtils::getAttributeCast<double>(
-      scannerNode, "scanAngleEffectiveMax_deg", 0.0));
-    beamDeflector = std::make_shared<TlsPolygonMirrorBeamDeflector>(
-      scanFreqMax_Hz,
-      scanFreqMin_Hz,
-      scanAngleMax_rad,
-      scanAngleEffectiveMax_rad,
-      scannerHead);
-  } 
+  // else if (str_opticsType == "tlspolygon") { // Build TLS beam deflector
+  //   double scanAngleEffectiveMax_rad =
+  //     MathConverter::degreesToRadians(XmlUtils::getAttributeCast<double>(
+  //     scannerNode, "scanAngleEffectiveMax_deg", 0.0));
+  //   beamDeflector = std::make_shared<TlsPolygonMirrorBeamDeflector>(
+  //     scanFreqMax_Hz,
+  //     scanFreqMin_Hz,
+  //     scanAngleMax_rad,
+  //     scanAngleEffectiveMax_rad,
+  //     scannerHead);
+  // } 
    
   else if (str_opticsType == "risley") {
     std::vector<Prism> prisms;
@@ -1400,9 +1400,9 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
         (optics=="rotatingnfb" &&
          std::dynamic_pointer_cast<PolygonMirrorNFBBeamDeflector>(deflec)!=
            nullptr) ||
-        (optics == "tlspolygon" &&
-         std::dynamic_pointer_cast<TlsPolygonMirrorBeamDeflector>(deflec) !=
-           nullptr) ||
+        // (optics == "tlspolygon" &&
+        //  std::dynamic_pointer_cast<TlsPolygonMirrorBeamDeflector>(deflec) !=
+        //    nullptr) ||
         (optics == "risley" &&
          std::dynamic_pointer_cast<RisleyBeamDeflector>(deflec) != nullptr);
       if (!deflectorsMatch) { // Assign new beam deflector, dont update
@@ -1461,17 +1461,17 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
             MathConverter::radiansToDegrees(
               pmnfbbd->cfg_device_scanAngleMax_rad)));
       }
-      // TLS polygon mirror beam deflector updates
-      if(optics == "tlspolygon"){
-        std::shared_ptr<TlsPolygonMirrorBeamDeflector> tlspmbd =
-          std::static_pointer_cast<TlsPolygonMirrorBeamDeflector>(_deflec);
-        tlspmbd->cfg_device_scanAngleMax_rad =
-          MathConverter::degreesToRadians(XmlUtils::getAttributeCast<double>(
-            chan,
-            "scanAngleEffectiveMax_deg",
-            MathConverter::radiansToDegrees(
-              tlspmbd->cfg_device_scanAngleMax_rad)));
-      }
+      // // TLS polygon mirror beam deflector updates
+      // if(optics == "tlspolygon"){
+      //   std::shared_ptr<TlsPolygonMirrorBeamDeflector> tlspmbd =
+      //     std::static_pointer_cast<TlsPolygonMirrorBeamDeflector>(_deflec);
+      //   tlspmbd->cfg_device_scanAngleMax_rad =
+      //     MathConverter::degreesToRadians(XmlUtils::getAttributeCast<double>(
+      //       chan,
+      //       "scanAngleEffectiveMax_deg",
+      //       MathConverter::radiansToDegrees(
+      //         tlspmbd->cfg_device_scanAngleMax_rad)));
+      // }
       // Risley beam deflector updates
       if (optics == "risley") {
         std::shared_ptr<RisleyBeamDeflector> rbd =

@@ -272,6 +272,11 @@ public:
     fwiAttrIdx = -1;
     hoiAttrIdx = -1;
     ampAttrIdx = -1;
+    atAttrIdx = -1;
+    dtAttrIdx = -1;
+    atAttrStart = -1;
+    dtAttrStart = -1;
+
     try {
       I32 ewType = 9;  // double
       I32 fwiType = 5; // int

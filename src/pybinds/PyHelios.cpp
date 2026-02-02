@@ -60,7 +60,7 @@ BOOST_PYTHON_MODULE(_pyhelios)
       setDefaultRandomnessGeneratorSeed,
       "Set the seed for the default randomness generator");
   class_<PyHeliosSimulation>("Simulation", init<>())
-    .def(init<std::string, list, std::string, size_t, bool, bool, bool, bool>())
+    .def(init<std::string, list, std::string, size_t, bool, bool, bool, bool, bool>())
     .def(init<std::string,
               list,
               std::string,
@@ -1157,13 +1157,13 @@ BOOST_PYTHON_MODULE(_pyhelios)
                   &PyMeasurementWrapper::setClassification)
     .add_property("gpsTime",
                   &PyMeasurementWrapper::getGpsTime,
-                  &PyMeasurementWrapper::setGpsTime)
-    .add_property("acrossTrackAngle",
-                  &PyMeasurementWrapper::getAcrossTrackAngle,
-                  &PyMeasurementWrapper::setAcrossTrackAngle)
-    .add_property("downTrackAngle",
-                  &PyMeasurementWrapper::getDownTrackAngle,
-                  &PyMeasurementWrapper::setDownTrackAngle);
+                  &PyMeasurementWrapper::setGpsTime);
+    // .add_property("acrossTrackAngle",
+    //               &PyMeasurementWrapper::getAcrossTrackAngle,
+    //               &PyMeasurementWrapper::setAcrossTrackAngle)
+    // .add_property("downTrackAngle",
+    //               &PyMeasurementWrapper::getDownTrackAngle,
+    //               &PyMeasurementWrapper::setDownTrackAngle);
 
   // Register TrajectoryVector
   class_<PyTrajectoryVectorWrapper>("TrajectoryVector", no_init)

@@ -102,8 +102,8 @@ BaseMeasurementWriter<WriteArgs...>::setOutputFilePath(
       logging::DEBUG("Creating writer for measurements ...");
       sfw = makeWriter(wt,                        // Writer type
                        path,                      // Output path
-                       isZipOutput(),             // Zip flag
                        this->writeScanAngles,     // Write scan angles flag
+                       isZipOutput(),             // Zip flag
                        getLasScale(),             // Scale factor
                        shift,                     // Offset
                        0.0,                       // Min intensity

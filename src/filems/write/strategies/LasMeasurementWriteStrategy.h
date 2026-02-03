@@ -184,8 +184,8 @@ protected:
     lp.set_attribute(ampAttrStart, F64(m.intensity));
     // If the start indices are valid (i.e., not -1), write scan angles
     if(atAttrStart > -1) {
-      lp.set_attribute(atAttrStart, F64(m.acrossTrackAngle_rad));
-      lp.set_attribute(dtAttrStart, F64(m.downTrackAngle_rad));
+      lp.set_attribute(atAttrStart, F32(m.acrossTrackAngle_rad));
+      lp.set_attribute(dtAttrStart, F32(m.downTrackAngle_rad));
     }
   }
 };

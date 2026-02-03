@@ -282,6 +282,7 @@ public:
       I32 fwiType = 5; // int
       I32 hoiType = 5; // int
       I32 ampType = 9; // double
+      I32 tattrType = 8; //float
       LASattribute ewAttr(ewType, "echo_width", "Helios++ echo width");
       LASattribute fwiAttr(fwiType, "fullwaveIndex", "Helios++ fullwave index");
       LASattribute hoiAttr(hoiType, "hitObjectId", "Helios++ hit object ID");
@@ -291,8 +292,8 @@ public:
       hoiAttrIdx = lwHeader.add_attribute(hoiAttr);
       ampAttrIdx = lwHeader.add_attribute(ampAttr);
       if (writeScanAngles) {
-        LASattribute atAttr(ewType, "AcrossTrackAngle", "Across-track scan angle in radians");
-        LASattribute dtAttr(ewType, "DownTrackAngle", "Down-track scan angle in radians");
+        LASattribute atAttr(tattrType, "AcrossTrackAngle", "Across-track scan angle in radians");
+        LASattribute dtAttr(tattrType, "DownTrackAngle", "Down-track scan angle in radians");
         atAttrIdx = lwHeader.add_attribute(atAttr);
         dtAttrIdx = lwHeader.add_attribute(dtAttr);
       }

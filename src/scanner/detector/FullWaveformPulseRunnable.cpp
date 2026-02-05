@@ -509,19 +509,57 @@ FullWaveformPulseRunnable::digestFullWaveform(
   MarquardtFitter fit = MarquardtFitter(apMatrix);
   fit.setData(fullwave);
 
-  double echo_width = 0.0;
-
 #if DATA_ANALYTICS >= 2
   std::unordered_set<std::size_t> capturedIndices;
 #endif
 
   for (int i = 0; i < numFullwaveBins; ++i) {
-    // Skip iteration if the handling of the bin_i does not accept the hit
-    if (handleFullWaveformBin(fullwave, fit, echo_width, i, win_size, nsPerBin))
-      continue;
+    
+    // 1. Detect a potential raw peak at index 'i'
+    double const eps = scanner->getReceivedEnergyMin(pulse.getDeviceIndex());
+    if (fullwave[i] < eps || !detectPeak(i, win_size, fullwave, eps)) {
+      continue; // This is not a valid local maximum in the window, so skip.
+    }
 
-    // Compute distance
-    double distance = SPEEDofLIGHT_mPerNanosec * (i * nsPerBin + minHitTime_ns);
+    // 2. We have found a valid raw peak at index 'i'. Now, proceed to process it.
+    double refined_peak_bin = (double)i; // Initialize with the raw peak index as a fallback.
+    double echo_width = 0.0;
+    bool fit_was_successful = false;
+
+    // Use the existing flag to control whether to perform the advanced fitting.
+    if (scanner->isCalcEchowidth()) {
+      try {
+        // Set the initial parameters for the fit using the raw peak info.
+        fit.setParameters(vector<double>{0, fullwave[i], (double)i, 1.0});
+        fit.fitData();
+
+        // Extract the refined parameters from the successful fit.
+        std::vector<double> params = fit.getParameters();
+        double fitted_mean = params[2];
+        double fitted_width = std::abs(params[3]);
+
+        // Add a sanity check: if the fit is nonsensical, reject it.
+        if (fitted_width * nsPerBin >= 0.1 && fitted_mean >= 0 && fitted_mean < numFullwaveBins) {
+            refined_peak_bin = fitted_mean; // THIS IS THE KEY: Use the fitted mean for the peak position.
+            echo_width = fitted_width * nsPerBin; // Use the fitted standard deviation for the width.
+            fit_was_successful = true;
+        } else {
+            // The fit produced an invalid result (e.g., negative width, out of bounds mean).
+            // We will fall back to using the raw peak data below.
+        }
+
+      } catch (std::exception& e) {
+          // If the fitter fails, log a warning and fall back to using the raw peak.
+          std::stringstream ss;
+          ss << "MarquardtFitter failed for pulse " << pulse.getPulseNumber() 
+              << ". Falling back to raw peak detection. Details: " << e.what();
+          logging::WARN(ss.str());
+          // Fallback is already handled as refined_peak_bin is initialized to 'i'.
+      }
+    }
+    
+    // 3. Compute distance using the REFINED_PEAK_BIN (or the raw one if fitting was off/failed).
+    double distance = SPEEDofLIGHT_mPerNanosec * (refined_peak_bin * nsPerBin + minHitTime_ns);
 
     // Build list of objects that produced this return
     double minDifference = numeric_limits<double>::max();
@@ -591,6 +629,12 @@ FullWaveformPulseRunnable::digestFullWaveform(
     // Check if maximum number of returns per pulse has been reached
     if (!scanner->checkMaxNOR(numReturns, devIdx))
       break;
+    
+    // To prevent re-detecting the same broadened peak, we can skip forward in the loop.
+    if (fit_was_successful) {
+      // If we used the advanced fitting, we can safely jump ahead.
+      i += win_size; 
+    }
   }
 #if DATA_ANALYTICS >= 2
   // Record all non captured points and remove them from records

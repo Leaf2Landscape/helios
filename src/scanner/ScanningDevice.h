@@ -193,6 +193,19 @@ protected:
    * @see FullWaveformPulseRunnable::detectPeak
    */
   double receivedEnergyMin_W = 0.0001;
+  /**
+   * @brief A user-defined calibration constant to correct for systematic
+   * range bias, typically from the pulse shape and processing algorithm.
+   * Units are nanoseconds.
+   */
+  double rangeCalibration_ns = 0.0;
+  /**
+     * @brief A vector of user-defined polynomial coefficients to correct for
+     * angle-dependent range walk. The polynomial corrects the VERTICAL (Z) error
+     * as a function of the absolute scan angle in radians.
+     * e.g., error_Z = P0 + P1*angle + P2*angle^2 + ...
+     */
+  std::vector<double> rangeWalkCoefficients;
 
   // ***  STATE ATTRIBUTES  *** //
   // ************************** //
@@ -582,4 +595,29 @@ public:
   {
     this->receivedEnergyMin_W = receivedEnergyMin_W;
   }
+
+  /**
+   * @brief Get the range calibration timing offset of the scanning device.
+   * @return The range calibration timing offset of the scanning device.
+   * @see ScanningDevice::rangeCalibration_ns
+   */
+  inline double getRangeCalibration() const { return rangeCalibration_ns; }
+  /**
+   * @brief Set the range calibration timing offset of the scanning device.
+   * @return The range calibration timing offset of the scanning device.
+   * @see ScanningDevice::rangeCalibration_ns
+   */
+  inline void setRangeCalibration(double offset) { rangeCalibration_ns = offset; }
+  /**
+     * @brief Get the range walk polynomial coefficients.
+     * @return A const reference to the vector of coefficients.
+     * @see ScanningDevice::rangeWalkCoefficients
+     */
+  inline const std::vector<double>& getRangeWalkCoefficients() const { return rangeWalkCoefficients; }
+    /**
+     * @brief Set the range walk polynomial coefficients.
+     * @param coeffs A vector of polynomial coefficients.
+     * @see ScanningDevice::rangeWalkCoefficients
+     */
+  inline void setRangeWalkCoefficients(const std::vector<double>& coeffs) { rangeWalkCoefficients = coeffs; }
 };

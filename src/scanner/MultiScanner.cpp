@@ -141,6 +141,41 @@ MultiScanner::prepareDiscretization(size_t const idx)
                           7.0 // 3.5 too many ops., 7.0 just one op.
                           ),
                         idx);
+
+std::vector<double>& tw = getTimeWave(0);
+int peak_idx = getPeakIntensityIndex(0);
+double sum = 0;
+double weighted_sum = 0;
+
+// Ensure there's something to process to avoid division by zero
+if (tw.empty() || peak_idx < 0) {
+  logging::WARN("Time wave is empty or peak index is invalid. Cannot calculate pulse shape offset.");
+  return; 
+}
+
+for(size_t i = 0; i < tw.size(); ++i) {
+  sum += tw[i];
+  weighted_sum += tw[i] * i;
+}
+
+// Add a check to prevent division by zero if the time_wave is all zeros
+if (sum == 0) {
+  logging::WARN("Time wave contains no energy. Cannot calculate pulse shape offset.");
+  return;
+}
+
+double mean_idx = weighted_sum / sum;
+double bin_offset = mean_idx - peak_idx;
+double time_offset_ns = bin_offset * getFWFSettings(0).binSize_ns;
+
+std::stringstream ss;
+ss << "PULSE SHAPE CALIBRATION:" << std::endl;
+ss << "  Peak Index: " << peak_idx << std::endl;
+ss << "  Mean Index: " << mean_idx << std::endl;
+ss << "  Bin Offset: " << bin_offset << " bins" << std::endl;
+ss << "  Time Offset: " << time_offset_ns << " ns" << std::endl;
+logging::INFO(ss.str());
+
 }
 
 Rotation

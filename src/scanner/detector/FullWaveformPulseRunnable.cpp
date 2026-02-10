@@ -512,7 +512,7 @@ FullWaveformPulseRunnable::digestFullWaveform(
 #if DATA_ANALYTICS >= 2
   std::unordered_set<std::size_t> capturedIndices;
 #endif
-
+//Modified Code for Gaussian Decomposition//
   for (int i = 0; i < numFullwaveBins; ++i) {
     
     // 1. Detect a potential raw peak at index 'i'
@@ -543,27 +543,64 @@ FullWaveformPulseRunnable::digestFullWaveform(
             refined_peak_bin = fitted_mean; // THIS IS THE KEY: Use the fitted mean for the peak position.
             echo_width = fitted_width * nsPerBin; // Use the fitted standard deviation for the width.
             fit_was_successful = true;
-        } else {
-            // The fit produced an invalid result (e.g., negative width, out of bounds mean).
-            // We will fall back to using the raw peak data below.
         }
 
       } catch (std::exception& e) {
           // If the fitter fails, log a warning and fall back to using the raw peak.
           std::stringstream ss;
           ss << "MarquardtFitter failed for pulse " << pulse.getPulseNumber() 
-              << ". Falling back to raw peak detection. Details: " << e.what();
+            << ". Falling back to raw peak detection. Details: " << e.what();
           logging::WARN(ss.str());
           // Fallback is already handled as refined_peak_bin is initialized to 'i'.
       }
     }
     
-    // 3. Compute distance using the REFINED_PEAK_BIN (or the raw one if fitting was off/failed).
-    double distance = SPEEDofLIGHT_mPerNanosec * (refined_peak_bin * nsPerBin + minHitTime_ns);
+    // 3. Compute distance using the REFINED_PEAK_BIN from the fit.
+    // This distance is currently the "mean" distance and has the vertical offset.
+    double uncorrected_time_ns = refined_peak_bin * nsPerBin + minHitTime_ns;
+    double distance = SPEEDofLIGHT_mPerNanosec * uncorrected_time_ns;
+    // 4. APPLY THE CALIBRATION CORRECTION
+    // We subtract the time offset *after* converting it back to a distance offset,
+    // using the simulation's own convention.
 
+    if (fit_was_successful) { // Or if (scanner->isCalcEchowidth())
+        double calib_offset_ns = scanner->getScanningDevice(pulse.getDeviceIndex()).getRangeCalibration();
+        distance -= SPEEDofLIGHT_mPerNanosec * calib_offset_ns;
+
+      // 5. APPLY THE ANGLE-DEPENDENT RANGE WALK CORRECTION
+      // These are the polynomial coefficients you found during the characterization phase.
+      // EXAMPLE: error_Z = P2 * angle^2 + P1 * angle + P0
+      const auto& coeffs = scanner->getScanningDevice(pulse.getDeviceIndex()).getRangeWalkCoefficients();
+    
+      // Only apply the correction if coefficients have been provided
+      if (!coeffs.empty()) {
+        double scan_angle_rad = std::abs(pulse.getAcrossTrackAngle());
+        double vertical_error_m = 0.0;
+        
+        // Horner's method for efficient polynomial evaluation
+        // Assumes coeffs are [P0, P1, P2, ...]
+        for (int j = coeffs.size() - 1; j >= 0; --j) {
+            vertical_error_m = vertical_error_m * scan_angle_rad + coeffs[j];
+        }
+
+        // We need to convert this vertical error into a range correction along the beam's line of sight.
+        // The relationship is: vertical_error = range_correction * cos(scan_angle)
+        // Therefore: range_correction = vertical_error / cos(scan_angle)
+        // We must protect against division by zero at large angles, although it's unlikely to be an issue.
+        double cos_angle = std::cos(scan_angle_rad);
+        double range_correction_m = (cos_angle > 1e-6) ? (vertical_error_m / cos_angle) : 0.0;
+
+        // Apply the final correction to the distance.
+        // Since your error is negative (points are too low), the range is too long.
+        // So, the correction should be SUBTRACTED from the distance.
+        distance += range_correction_m;
+      }
+    }
     // Build list of objects that produced this return
     double minDifference = numeric_limits<double>::max();
     shared_ptr<RaySceneIntersection> closestIntersection = nullptr;
+
+//End Modified Code for Gaussian Decomposition//
 
 #ifdef DATA_ANALYTICS
     size_t intersectionIdx = 0;

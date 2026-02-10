@@ -864,8 +864,30 @@ XmlAssetsLoader::createScannerFromXml(tinyxml2::XMLElement* scannerNode)
     // Parse max number of returns per pulse
     scanner->setMaxNOR(
       XmlUtils::getAttributeCast<int>(scannerNode, "maxNOR", 0));
+    // --- START OF NEW CODE ---
+    // Parse the user-defined range calibration constant from the XML attribute
+    double range_calib_ns = XmlUtils::getAttributeCast<double>(
+      scannerNode, "rangeCalibration_ns", 0.0);
+    // Set the calibration value on the scanner's single scanning device
+    scanner->getScanningDevice(0).setRangeCalibration(range_calib_ns);
+    std::string coeff_str = XmlUtils::getAttributeCast<std::string>(
+      scannerNode, "rangeWalkCoefficients", "");
+    if (!coeff_str.empty()) {
+      std::vector<double> coeffs;
+      std::vector<std::string> coeff_parts;
+      boost::split(coeff_parts, coeff_str, boost::is_any_of(","));
+      for (const std::string& part : coeff_parts) {
+        try {
+          coeffs.push_back(boost::lexical_cast<double>(part));
+        } catch (const boost::bad_lexical_cast &) {
+          logging::WARN("Could not parse a range walk coefficient: " + part);
+        }
+      }
+      scanner->getScanningDevice(0).setRangeWalkCoefficients(coeffs);
+    }
     // Create and parse scanner components with dependency injection
     std::shared_ptr<ScannerHead> scannerHead = createScannerHeadFromXml(scannerNode);
+    // --- END OF NEW CODE ---
     // Parse beam deflector
     scanner->setBeamDeflector(createBeamDeflectorFromXml(scannerNode, scannerHead));
     // Parse detector
@@ -1604,6 +1626,30 @@ XmlAssetsLoader::fillScanningDevicesFromChannels(
       XmlUtils::getAttributeCast<double>(
         chan, "receivedEnergyMin_W", scanner->getReceivedEnergyMin(idx)),
       idx);
+// --- START OF NEW CODE ---
+    // Parse the user-defined range calibration constant for this specific channel.
+    // This allows each channel to have a different calibration offset if needed.
+    double range_calib_ns = XmlUtils::getAttributeCast<double>(
+      chan, "rangeCalibration_ns", 0.0);
+    // Set the calibration value on the current scanning device (channel)
+    scanner->getScanningDevice(idx).setRangeCalibration(range_calib_ns);
+    
+    std::string coeff_str = XmlUtils::getAttributeCast<std::string>(
+      chan, "rangeWalkCoefficients", "");
+    if (!coeff_str.empty()) {
+      std::vector<double> coeffs;
+      std::vector<std::string> coeff_parts;
+      boost::split(coeff_parts, coeff_str, boost::is_any_of(","));
+      for (const std::string& part : coeff_parts) {
+        try {
+          coeffs.push_back(boost::lexical_cast<double>(part));
+        } catch (const boost::bad_lexical_cast &) {
+          logging::WARN("Could not parse a range walk coefficient for channel " + std::to_string(idx) + ": " + part);
+        }
+      }
+      scanner->getScanningDevice(idx).setRangeWalkCoefficients(coeffs);
+    }
+// --- END OF NEW CODE ---
     // Next channel, if any
     chan = chan->NextSiblingElement("channel");
     ++idx;

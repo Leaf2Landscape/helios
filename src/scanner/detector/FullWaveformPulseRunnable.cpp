@@ -543,6 +543,9 @@ FullWaveformPulseRunnable::digestFullWaveform(
             refined_peak_bin = fitted_mean; // THIS IS THE KEY: Use the fitted mean for the peak position.
             echo_width = fitted_width * nsPerBin; // Use the fitted standard deviation for the width.
             fit_was_successful = true;
+        } else {
+            // The fit produced an invalid result (e.g., negative width, out of bounds mean).
+            // We will fall back to using the raw peak data below.
         }
 
       } catch (std::exception& e) {

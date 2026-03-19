@@ -225,7 +225,11 @@ public:
       case zipType:
         return std::make_shared<ZipMultiVectorialSyncFileMeasurementWriter>(path, writeScanAngles);
       case simpleType:
-        return std::make_shared<SimpleMultiVectorialSyncFileMeasurementWriter>(path, writeScanAngles);
+        return std::make_shared<SimpleMultiVectorialSyncFileMeasurementWriter>(
+          path, 
+          std::ios_base::app,
+          writeScanAngles
+        );
     }
 
     // Handle unexpected type

@@ -73,8 +73,9 @@ FullWaveformPulseRunnable::operator()(
   map<double, double> reflections;
   vector<RaySceneIntersection> intersects;
   std::vector<DiscreteSubrayReturn> discreteSubrayReturns;
+  FWFSettings const& fwfSettings = scanner->getFWFSettings(pulse.getDeviceIndex());
   bool const collectDiscreteSubrayReturns =
-    scanner->getFWFSettings(pulse.getDeviceIndex()).snapToSurface;
+    fwfSettings.snapToSurface && fwfSettings.beamSampleQuality > 1;
 #if DATA_ANALYTICS >= 2
   std::vector<std::vector<double>> calcIntensityRecords;
   std::vector<std::vector<int>> calcIntensityIndices;
@@ -544,8 +545,9 @@ FullWaveformPulseRunnable::digestFullWaveform(
 
   // Surface snapping: snap returns to actual mesh hit points, eliminating
   // angle-dependent slant bias in full waveform Gaussian peak distances
+  FWFSettings const& fwfSettings = scanner->getFWFSettings(pulse.getDeviceIndex());
   bool const snapToSurface =
-    scanner->getFWFSettings(pulse.getDeviceIndex()).snapToSurface;
+    fwfSettings.snapToSurface && fwfSettings.beamSampleQuality > 1;
   vector<double> const& timeWave = scanner->getTimeWave(pulse.getDeviceIndex());
   bool const canSnapToSurface =
     snapToSurface && !discreteSubrayReturns.empty() && !timeWave.empty();

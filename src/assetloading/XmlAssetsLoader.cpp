@@ -1276,6 +1276,11 @@ XmlAssetsLoader::createFWFSettingsFromXml(tinyxml2::XMLElement* node,
       node, "maxFullwaveRange_ns", settings->maxFullwaveRange_ns);
     settings->apertureDiameter = XmlUtils::getAttributeCast<double>(
       node, "apertureDiameter_m", settings->apertureDiameter);
+    settings->snapToSurface = XmlUtils::getAttributeCast<bool>(
+      node, "snapToSurface", settings->snapToSurface);
+    // Backward compatibility for previous naming.
+    settings->snapToSurface = XmlUtils::getAttributeCast<bool>(
+      node, "useSubrayDiscretePoint", settings->snapToSurface);
   }
 
   return settings;

@@ -73,6 +73,8 @@ FullWaveformPulseRunnable::operator()(
   map<double, double> reflections;
   vector<RaySceneIntersection> intersects;
   std::vector<DiscreteSubrayReturn> discreteSubrayReturns;
+  bool const collectDiscreteSubrayReturns =
+    scanner->getFWFSettings(pulse.getDeviceIndex()).snapToSurface;
 #if DATA_ANALYTICS >= 2
   std::vector<std::vector<double>> calcIntensityRecords;
   std::vector<std::vector<int>> calcIntensityIndices;
@@ -80,7 +82,8 @@ FullWaveformPulseRunnable::operator()(
   computeSubrays(intersectionHandlingNoiseSource,
                  reflections,
                  intersects,
-                 discreteSubrayReturns
+                 discreteSubrayReturns,
+                 collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
                  ,
                  calcIntensityRecords,
@@ -125,7 +128,8 @@ FullWaveformPulseRunnable::computeSubrays(
   NoiseSource<double>& intersectionHandlingNoiseSource,
   std::map<double, double>& reflections,
   vector<RaySceneIntersection>& intersects,
-  std::vector<DiscreteSubrayReturn>& discreteSubrayReturns
+  std::vector<DiscreteSubrayReturn>& discreteSubrayReturns,
+  bool const collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
   ,
   std::vector<std::vector<double>>& calcIntensityRecords,
@@ -150,7 +154,8 @@ FullWaveformPulseRunnable::computeSubrays(
                    intersectionHandlingNoiseSource,
                    reflections,
                    intersects,
-                   discreteSubrayReturns
+                   discreteSubrayReturns,
+                   collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
                    ,
                    subrayHit,
@@ -177,7 +182,8 @@ FullWaveformPulseRunnable::handleSubray(
   NoiseSource<double>& intersectionHandlingNoiseSource,
   map<double, double>& reflections,
   vector<RaySceneIntersection>& intersects,
-  std::vector<DiscreteSubrayReturn>& discreteSubrayReturns
+  std::vector<DiscreteSubrayReturn>& discreteSubrayReturns,
+  bool const collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
   ,
   bool& subrayHit,
@@ -291,12 +297,15 @@ FullWaveformPulseRunnable::handleSubray(
       if (!rayContinues) { // If ray is not continuing
         // Then register hit by default
         reflections.insert(pair<double, double>(distance, intensity));
-        DiscreteSubrayReturn dsr;
-        dsr.distance = distance;
-        dsr.intensity = intensity;
-        dsr.intersectsIndex = intersects.size();
+        std::size_t const intersectsIndex = intersects.size();
         intersects.push_back(*intersect);
-        discreteSubrayReturns.push_back(dsr);
+        if (collectDiscreteSubrayReturns) {
+          DiscreteSubrayReturn dsr;
+          dsr.distance = distance;
+          dsr.intensity = intensity;
+          dsr.intersectsIndex = intersectsIndex;
+          discreteSubrayReturns.push_back(dsr);
+        }
       }
 #if DATA_ANALYTICS >= 2
       std::vector<double>& calcIntensityRecord = calcIntensityRecords.back();

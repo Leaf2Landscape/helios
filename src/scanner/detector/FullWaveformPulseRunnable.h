@@ -88,7 +88,8 @@ private:
   void computeSubrays(NoiseSource<double>& intersectionHandlingNoiseSource,
                       std::map<double, double>& reflections,
                       vector<RaySceneIntersection>& intersects,
-                      std::vector<DiscreteSubrayReturn>& discreteSubrayReturns
+                      std::vector<DiscreteSubrayReturn>& discreteSubrayReturns,
+                      bool const collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
                       ,
                       std::vector<std::vector<double>>& calcIntensityRecords,
@@ -110,7 +111,8 @@ private:
                     NoiseSource<double>& intersectionHandlingNoiseSource,
                     std::map<double, double>& reflections,
                     vector<RaySceneIntersection>& intersects,
-                    std::vector<DiscreteSubrayReturn>& discreteSubrayReturns
+                    std::vector<DiscreteSubrayReturn>& discreteSubrayReturns,
+                    bool const collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
                     ,
                     bool& subrayHit,

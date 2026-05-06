@@ -129,6 +129,27 @@ LidarSim::init(std::string surveyPath,
                                      gpsStartTime,
                                      legacyEnergyModel);
 
+  // Print a startup notice if snap-to-surface is enabled on any device.
+  std::size_t snapToSurfaceEnabledCount = 0;
+  std::size_t const numDevices = survey->scanner->getNumDevices();
+  for (std::size_t devIdx = 0; devIdx < numDevices; ++devIdx) {
+    FWFSettings const& fwfSettings = survey->scanner->getFWFSettings(devIdx);
+    if (fwfSettings.snapToSurface && fwfSettings.beamSampleQuality > 1) {
+      ++snapToSurfaceEnabledCount;
+    }
+  }
+  if (snapToSurfaceEnabledCount > 0) {
+    if (snapToSurfaceEnabledCount == numDevices) {
+      std::cout << "snapToSurface is True (survey-level: "
+                << snapToSurfaceEnabledCount << "/" << numDevices
+                << " devices)" << std::endl;
+    } else {
+      std::cout << "snapToSurface is True (device-level: "
+                << snapToSurfaceEnabledCount << "/" << numDevices
+                << " devices)" << std::endl;
+    }
+  }
+
   // Start simulation
   logging::INFO("Running simulation...");
   TimeWatcher tw;

@@ -1,6 +1,7 @@
 #include <test/AssetLoadingTest.h>
 #include <test/BaseTest.h>
 #include <test/DiscreteTimeTest.h>
+#include <test/SnapToSurfaceTest.h>
 #include <test/EnergyModelsTest.h>
 #include <test/ExprTreeTest.h>
 #include <test/FluxionumTest.h>
@@ -101,6 +102,9 @@ doTests(std::string const& testDir)
 
   ScenePartSplitTest scenePartSplitTest;
   passed &= scenePartSplitTest.test(std::cout, TEST_COLOR);
+
+  SnapToSurfaceTest snapToSurfaceTest;
+  passed &= snapToSurfaceTest.test(std::cout, TEST_COLOR);
 
   ExprTreeTest exprTreeTest;
   passed &= exprTreeTest.test(std::cout, TEST_COLOR);

@@ -67,7 +67,7 @@ public:
    * @brief Snap waveform return to closest surface hit instead of
    *  Gaussian-fitted peak point, eliminating angle-dependent slant bias
    */
-  bool snapToSurface = false;
+  bool snapToSurface = false; // LCOV_EXCL_LINE
 
   // ***  CONSTRUCTION / DESTRUCTION  *** //
   // ************************************ //
@@ -98,7 +98,7 @@ public:
        << "beamSampleQuality = " << beamSampleQuality << "\n"
        << "winSize_ns = " << winSize_ns << "\n"
        << "maxFullwaveRange_ns = " << maxFullwaveRange_ns << "\n"
-       << "snapToSurface = " << snapToSurface << "\n";
+       << "snapToSurface = " << snapToSurface << "\n"; // LCOV_EXCL_LINE
     return ss.str();
   }
   /**

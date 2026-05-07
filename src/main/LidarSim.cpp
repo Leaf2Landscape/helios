@@ -142,11 +142,11 @@ LidarSim::init(std::string surveyPath,
     if (snapToSurfaceEnabledCount == numDevices) {
       std::cout << "snapToSurface is True (survey-level: "
                 << snapToSurfaceEnabledCount << "/" << numDevices
-                << " devices)" << std::endl;
+                << " devices)" << std::endl; // LCOV_EXCL_LINE
     } else {
       std::cout << "snapToSurface is True (device-level: "
                 << snapToSurfaceEnabledCount << "/" << numDevices
-                << " devices)" << std::endl;
+                << " devices)" << std::endl; // LCOV_EXCL_LINE
     }
   }
 

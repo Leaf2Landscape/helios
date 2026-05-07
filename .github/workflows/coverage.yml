@@ -25,7 +25,7 @@ jobs:
       CONDA_INSTALL_DIR: ${{ github.workspace }}/miniconda
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Restore conda environment cache
         id: conda-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.CONDA_INSTALL_DIR }}/envs/helios-dev
           key: conda-env-v2-${{ runner.os }}-py3.14-${{ hashFiles('environment-dev.yml') }}
@@ -80,7 +80,7 @@ jobs:
           lcov --directory build --capture --output-file coverage.info --ignore-errors mismatch
       
       - name: Upload coverage to CodeCov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           fail_ci_if_error: true
           files: ./coverage.info,./coverage.xml

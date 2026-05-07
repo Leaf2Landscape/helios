@@ -58,7 +58,7 @@ add_library(helios)
 find_package(GDAL CONFIG REQUIRED)
 find_package(tinyxml2 REQUIRED)
 find_package(glm REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system thread regex filesystem serialization iostreams random)
+find_package(Boost REQUIRED COMPONENTS thread regex filesystem serialization iostreams random)
 find_package(Armadillo REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(BLAS REQUIRED)
@@ -99,7 +99,7 @@ target_link_libraries(helios
     GDAL::GDAL
     tinyxml2::tinyxml2
     glm::glm
-    Boost::system
+    Boost::headers
     Boost::thread
     Boost::regex
     Boost::filesystem

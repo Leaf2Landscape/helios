@@ -16,17 +16,35 @@ namespace fms = helios::filems;
 namespace helios {
 namespace main {
 
-void LidarSim::init(std::string surveyPath, std::vector<std::string> assetsPath,
-                    std::string outputPath, bool writeWaveform, bool writePulse,
-                    bool calcEchowidth, int parallelizationStrategy,
-                    size_t njobs, int chunkSize, int warehouseFactor,
-                    bool fullWaveNoise, bool splitByChannel,
-                    bool platformNoiseDisabled, bool legNoiseDisabled,
-                    bool rebuildScene, bool writeScene, bool lasOutput,
-                    bool las10, bool zipOutput, bool fixedIncidenceAngle,
-                    std::string gpsStartTime, double lasScale, int kdtType,
-                    size_t kdtJobs, size_t kdtGeomJobs, size_t sahLossNodes,
-                    bool const legacyEnergyModel) {
+void
+LidarSim::init(std::string surveyPath,
+               std::vector<std::string> assetsPath,
+               std::string outputPath,
+               bool writeWaveform,
+               bool writePulse,
+               bool calcEchowidth,
+               int parallelizationStrategy,
+               size_t njobs,
+               int chunkSize,
+               int warehouseFactor,
+               bool fullWaveNoise,
+               bool splitByChannel,
+               bool platformNoiseDisabled,
+               bool legNoiseDisabled,
+               bool rebuildScene,
+               bool writeScene,
+               bool lasOutput,
+               bool las10,
+               bool zipOutput,
+               bool fixedIncidenceAngle,
+               std::string gpsStartTime,
+               double lasScale,
+               int kdtType,
+               size_t kdtJobs,
+               size_t kdtGeomJobs,
+               size_t sahLossNodes,
+               bool const legacyEnergyModel)
+{
   // Info about execution arguments
   std::stringstream ss;
   ss << "surveyPath: \"" << surveyPath << "\"\n"
@@ -61,13 +79,13 @@ void LidarSim::init(std::string surveyPath, std::vector<std::string> assetsPath,
 
   // Load survey description from XML file:
   std::shared_ptr<XmlSurveyLoader> xmlreader =
-      std::make_shared<XmlSurveyLoader>(surveyPath, assetsPath, writeScene);
+    std::make_shared<XmlSurveyLoader>(surveyPath, assetsPath, writeScene);
   xmlreader->sceneLoader.kdtFactoryType = kdtType;
   xmlreader->sceneLoader.kdtNumJobs = kdtJobs;
   xmlreader->sceneLoader.kdtGeomJobs = kdtGeomJobs;
   xmlreader->sceneLoader.kdtSAHLossNodes = sahLossNodes;
   std::shared_ptr<Survey> survey =
-      xmlreader->load(legNoiseDisabled, rebuildScene);
+    xmlreader->load(legNoiseDisabled, rebuildScene);
   if (survey == nullptr) {
     logging::ERR("Failed to load survey!");
     exit(-1);
@@ -83,8 +101,7 @@ void LidarSim::init(std::string surveyPath, std::vector<std::string> assetsPath,
 
   // Build main facade for File Management System, associated to the survey
   std::shared_ptr<fms::FMSFacade> fms = fms::FMSFacadeFactory().buildFacade(
-      outputPath, lasScale, lasOutput, las10, zipOutput, splitByChannel,
-      *survey);
+    outputPath, lasScale, lasOutput, las10, zipOutput, splitByChannel, *survey);
 
   // Build thread pool for parallel computation
   /*
@@ -94,22 +111,29 @@ void LidarSim::init(std::string surveyPath, std::vector<std::string> assetsPath,
   unsigned numSysThreads = std::thread::hardware_concurrency();
   std::size_t const poolSize = (njobs == 0) ? numSysThreads - 1 : njobs - 1;
   PulseThreadPoolFactory ptpf(
-      parallelizationStrategy, poolSize,
-      survey->scanner->getDetector()->cfg_device_accuracy_m, chunkSize,
-      warehouseFactor);
+    parallelizationStrategy,
+    poolSize,
+    survey->scanner->getDetector()->cfg_device_accuracy_m,
+    chunkSize,
+    warehouseFactor);
   std::shared_ptr<PulseThreadPoolInterface> pulseThreadPool =
-      ptpf.makePulseThreadPool();
+    ptpf.makePulseThreadPool();
 
   // Build the survey playback simulation itself
-  std::shared_ptr<SurveyPlayback> playback = std::make_shared<SurveyPlayback>(
-      survey, fms, parallelizationStrategy, pulseThreadPool,
-      std::abs(chunkSize), gpsStartTime, legacyEnergyModel);
+  std::shared_ptr<SurveyPlayback> playback =
+    std::make_shared<SurveyPlayback>(survey,
+                                     fms,
+                                     parallelizationStrategy,
+                                     pulseThreadPool,
+                                     std::abs(chunkSize),
+                                     gpsStartTime,
+                                     legacyEnergyModel);
 
   // Print a startup notice if snap-to-surface is enabled on any device.
   std::size_t snapToSurfaceEnabledCount = 0;
   std::size_t const numDevices = survey->scanner->getNumDevices();
   for (std::size_t devIdx = 0; devIdx < numDevices; ++devIdx) {
-    FWFSettings const &fwfSettings = survey->scanner->getFWFSettings(devIdx);
+    FWFSettings const& fwfSettings = survey->scanner->getFWFSettings(devIdx);
     if (fwfSettings.snapToSurface && fwfSettings.beamSampleQuality > 1) {
       ++snapToSurfaceEnabledCount;
     }
@@ -141,7 +165,9 @@ void LidarSim::init(std::string surveyPath, std::vector<std::string> assetsPath,
   release(playback);
 }
 
-void LidarSim::release(std::shared_ptr<SurveyPlayback> sp) {
+void
+LidarSim::release(std::shared_ptr<SurveyPlayback> sp)
+{
   // Release scanner
   std::shared_ptr<Scanner> sc = sp->mSurvey->scanner;
   sc->randGen1 = nullptr;

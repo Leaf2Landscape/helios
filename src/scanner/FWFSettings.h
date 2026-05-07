@@ -9,7 +9,8 @@
 /**
  * @brief Full Waveform settings
  */
-class FWFSettings : public Asset {
+class FWFSettings : public Asset
+{
 
 public:
   // ***  ATTRIBUTES  *** //
@@ -81,7 +82,8 @@ public:
    * @brief Obtain the string representation of the scanner settings
    * @return String representing the scanner settings
    */
-  virtual inline std::string toString() const {
+  virtual inline std::string toString() const
+  {
     std::stringstream ss;
     ss << "FWFSettings \"" << id << "\":\n"
        << "binSize_ns = " << binSize_ns << "\n"
@@ -102,8 +104,9 @@ public:
   /**
    * @brief Overload of << operator for output streams
    */
-  friend std::ostream &operator<<(std::ostream &out,
-                                  const FWFSettings &settings) {
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const FWFSettings& settings)
+  {
     out << settings.toString();
     return out;
   }

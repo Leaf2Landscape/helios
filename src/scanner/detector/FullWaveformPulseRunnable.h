@@ -26,7 +26,8 @@ class SnapToSurfaceTest;
  *  surface-snapping full waveform processing
  * @see FullWaveformPulseRunnable
  */
-struct DiscreteSubrayReturn {
+struct DiscreteSubrayReturn
+{
   double distance = 0.0;
   double intensity = 0.0;
   std::size_t intersectsIndex = 0; // Index into intersects array
@@ -38,7 +39,8 @@ struct DiscreteSubrayReturn {
  *
  * @see AbstractPulseRunnable
  */
-class FullWaveformPulseRunnable : public AbstractPulseRunnable {
+class FullWaveformPulseRunnable : public AbstractPulseRunnable
+{
   friend class HeliosTests::SnapToSurfaceTest;
 
 private:
@@ -59,8 +61,10 @@ public:
    * @see SimulatedPulse
    */
   FullWaveformPulseRunnable(std::shared_ptr<Scanner> scanner,
-                            SimulatedPulse const &pulse)
-      : AbstractPulseRunnable(scanner, pulse) {}
+                            SimulatedPulse const& pulse)
+    : AbstractPulseRunnable(scanner, pulse)
+  {
+  }
 
   virtual ~FullWaveformPulseRunnable() {}
 
@@ -87,14 +91,14 @@ private:
    *  registered
    * @see FullWaveformPulseRunnable::handleSubray
    */
-  void computeSubrays(NoiseSource<double> &intersectionHandlingNoiseSource,
-                      std::map<double, double> &reflections,
-                      vector<RaySceneIntersection> &intersects,
-                      std::vector<DiscreteSubrayReturn> &discreteSubrayReturns,
+  void computeSubrays(NoiseSource<double>& intersectionHandlingNoiseSource,
+                      std::map<double, double>& reflections,
+                      vector<RaySceneIntersection>& intersects,
+                      std::vector<DiscreteSubrayReturn>& discreteSubrayReturns,
                       bool const collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
                       ,
-                      std::vector<std::vector<double>> &calcIntensityRecords,
+                      std::vector<std::vector<double>>& calcIntensityRecords,
                       std::shared_ptr<HDA_PulseRecorder> pulseRecorder
 #endif
   );
@@ -108,16 +112,18 @@ private:
    *  to model the circumference (i.e., at which angle in the circle).
    * @see FullWaveformPulseRunnable::computeSubrays
    */
-  void handleSubray(Rotation const &subrayRotation, int const subrayRadiusStep,
-                    NoiseSource<double> &intersectionHandlingNoiseSource,
-                    std::map<double, double> &reflections,
-                    vector<RaySceneIntersection> &intersects,
-                    std::vector<DiscreteSubrayReturn> &discreteSubrayReturns,
+  void handleSubray(Rotation const& subrayRotation,
+                    int const subrayRadiusStep,
+                    NoiseSource<double>& intersectionHandlingNoiseSource,
+                    std::map<double, double>& reflections,
+                    vector<RaySceneIntersection>& intersects,
+                    std::vector<DiscreteSubrayReturn>& discreteSubrayReturns,
                     bool const collectDiscreteSubrayReturns
 #if DATA_ANALYTICS >= 2
                     ,
-                    bool &subrayHit, std::vector<double> &subraySimRecord,
-                    std::vector<std::vector<double>> &calcIntensityRecords
+                    bool& subrayHit,
+                    std::vector<double>& subraySimRecord,
+                    std::vector<std::vector<double>>& calcIntensityRecords
 #endif
   );
   /**
@@ -135,17 +141,18 @@ private:
    * @see FullWaveformPulseRunnable::exportOutput
    */
   void digestIntersections(
-      std::vector<std::vector<double>> &apMatrix,
-      RandomnessGenerator<double> &randGen,
-      RandomnessGenerator<double> &randGen2, glm::dvec3 &beamDir,
-      std::map<double, double> &reflections,
-      vector<RaySceneIntersection> &intersects,
-      std::vector<DiscreteSubrayReturn> const &discreteSubrayReturns
+    std::vector<std::vector<double>>& apMatrix,
+    RandomnessGenerator<double>& randGen,
+    RandomnessGenerator<double>& randGen2,
+    glm::dvec3& beamDir,
+    std::map<double, double>& reflections,
+    vector<RaySceneIntersection>& intersects,
+    std::vector<DiscreteSubrayReturn> const& discreteSubrayReturns
 #if DATA_ANALYTICS >= 2
-      ,
-      std::vector<std::vector<double>> &calcIntensityRecords,
-      std::vector<std::vector<int>> &calcIntensityIndices,
-      std::shared_ptr<HDA_PulseRecorder> pulseRecorder
+    ,
+    std::vector<std::vector<double>>& calcIntensityRecords,
+    std::vector<std::vector<int>>& calcIntensityIndices,
+    std::shared_ptr<HDA_PulseRecorder> pulseRecorder
 #endif
   );
   /**
@@ -154,8 +161,9 @@ private:
    * @param[out] maxHitDist_m Max hit distance will be stored here
    * @see FullWaveformPulseRunnable::digestIntersections
    */
-  void findMaxMinHitDistances(std::map<double, double> &reflections,
-                              double &minHitDist_m, double &maxHitDist_m);
+  void findMaxMinHitDistances(std::map<double, double>& reflections,
+                              double& minHitDist_m,
+                              double& maxHitDist_m);
   /**
    * @brief Initialize full waveform
    * While the vector is not strictly initialized in this function,
@@ -170,20 +178,24 @@ private:
    * @see FullWaveformPulseRunnable::digestIntersections
    */
   bool initializeFullWaveform(double const minHitDist_m,
-                              double const maxHitDist_m, double &minHitTime_ns,
-                              double &maxHitTime_ns, double &nsPerBin,
-                              double &distanceThreshold,
-                              int &peakIntensityIndex, int &numFullwaveBins);
+                              double const maxHitDist_m,
+                              double& minHitTime_ns,
+                              double& maxHitTime_ns,
+                              double& nsPerBin,
+                              double& distanceThreshold,
+                              int& peakIntensityIndex,
+                              int& numFullwaveBins);
   /**
    * @brief Populate a previously initialized full waveform vector
    * @param[out] fullwave Full waveform vector to be populated
    * @see FullWaveformPulseRunnable::digestIntersections
    * @see FullWaveformPulseRunnable::initializeFullWaveform
    */
-  void populateFullWaveform(std::map<double, double> const &reflections,
-                            std::vector<double> &fullwave,
+  void populateFullWaveform(std::map<double, double> const& reflections,
+                            std::vector<double>& fullwave,
                             double const distanceThreshold,
-                            double const minHitTime_ns, double const nsPerBin,
+                            double const minHitTime_ns,
+                            double const nsPerBin,
                             int const peakIntensityIndex);
   /**
    * @brief Digest a previously populated full waveform vector,
@@ -197,18 +209,22 @@ private:
    * @see Measurement
    */
   void digestFullWaveform(
-      std::vector<Measurement> &pointsMeasurement, int &numReturns,
-      std::vector<std::vector<double>> &apMatrix,
-      std::vector<double> const &fullwave,
-      vector<RaySceneIntersection> const &intersects, glm::dvec3 const &beamDir,
-      double const nsPerBin, int const numFullwaveBins,
-      int const peakIntensityIndex, double const minHitTime_ns,
-      std::vector<DiscreteSubrayReturn> const &discreteSubrayReturns
+    std::vector<Measurement>& pointsMeasurement,
+    int& numReturns,
+    std::vector<std::vector<double>>& apMatrix,
+    std::vector<double> const& fullwave,
+    vector<RaySceneIntersection> const& intersects,
+    glm::dvec3 const& beamDir,
+    double const nsPerBin,
+    int const numFullwaveBins,
+    int const peakIntensityIndex,
+    double const minHitTime_ns,
+    std::vector<DiscreteSubrayReturn> const& discreteSubrayReturns
 #if DATA_ANALYTICS >= 2
-      ,
-      std::vector<std::vector<double>> &calcIntensityRecords,
-      std::vector<std::vector<int>> &calcIntensityIndices,
-      std::shared_ptr<HDA_PulseRecorder> pulseRecorder
+    ,
+    std::vector<std::vector<double>>& calcIntensityRecords,
+    std::vector<std::vector<int>>& calcIntensityIndices,
+    std::shared_ptr<HDA_PulseRecorder> pulseRecorder
 #endif
   );
   /**
@@ -223,9 +239,11 @@ private:
    *  hit, i.e., true to skip the current iteration. False to proceed with
    *  the computation of the current iteration.
    */
-  bool handleFullWaveformBin(std::vector<double> const &fullwave,
-                             MarquardtFitter &fit, double &echoWidth,
-                             int const binIndex, int const winSize,
+  bool handleFullWaveformBin(std::vector<double> const& fullwave,
+                             MarquardtFitter& fit,
+                             double& echoWidth,
+                             int const binIndex,
+                             int const winSize,
                              double const nsPerBin);
   /**
    * @brief Export measurements and full waveform data
@@ -233,16 +251,18 @@ private:
    * @param[in] pointsMeasurement Point cloud data to export
    * @see FullWaveformPulseRunnable::digestIntersections
    */
-  void exportOutput(std::vector<double> &fullwave, int const numReturns,
-                    std::vector<Measurement> &pointsMeasurement,
-                    glm::dvec3 const &beamDir, double const minHitTime_ns,
+  void exportOutput(std::vector<double>& fullwave,
+                    int const numReturns,
+                    std::vector<Measurement>& pointsMeasurement,
+                    glm::dvec3 const& beamDir,
+                    double const minHitTime_ns,
                     double const maxHitTime_ns,
-                    RandomnessGenerator<double> &randGen,
-                    RandomnessGenerator<double> &randGen2
+                    RandomnessGenerator<double>& randGen,
+                    RandomnessGenerator<double>& randGen2
 #if DATA_ANALYTICS >= 2
                     ,
-                    std::vector<std::vector<double>> &calcIntensityRecords,
-                    std::vector<std::vector<int>> &calcIntensityIndices,
+                    std::vector<std::vector<double>>& calcIntensityRecords,
+                    std::vector<std::vector<int>>& calcIntensityIndices,
                     std::shared_ptr<HDA_PulseRecorder> pulseRecorder
 #endif
   );
@@ -257,14 +277,17 @@ private:
    * @param v The ray director vector
    * @return Intersection between the scene and given ray
    */
-  virtual std::shared_ptr<RaySceneIntersection>
-  findIntersection(std::vector<double> const &tMinMax, glm::dvec3 const &o,
-                   glm::dvec3 const &v) const;
+  virtual std::shared_ptr<RaySceneIntersection> findIntersection(
+    std::vector<double> const& tMinMax,
+    glm::dvec3 const& o,
+    glm::dvec3 const& v) const;
   /**
    * @brief Detect full waveform peaks
    */
-  bool detectPeak(int const i, int const win_size,
-                  std::vector<double> const &fullwave, double const eps);
+  bool detectPeak(int const i,
+                  int const win_size,
+                  std::vector<double> const& fullwave,
+                  double const eps);
 
   /**
    * @brief Capture full wave
@@ -280,11 +303,15 @@ private:
    * @param rg2 Randomness generator to be used to add noise to the full wave
    *  if requested
    */
-  void captureFullWave(std::vector<double> &fullwave, int const fullwaveIndex,
-                       double const min_time, double const max_time,
-                       glm::dvec3 const &beamOrigin, glm::dvec3 const &beamDir,
-                       double const gpstime, bool const fullWaveNoise,
-                       RandomnessGenerator<double> &rg2);
+  void captureFullWave(std::vector<double>& fullwave,
+                       int const fullwaveIndex,
+                       double const min_time,
+                       double const max_time,
+                       glm::dvec3 const& beamOrigin,
+                       glm::dvec3 const& beamDir,
+                       double const gpstime,
+                       bool const fullWaveNoise,
+                       RandomnessGenerator<double>& rg2);
 
   /**
    * @brief Check whether the ray/subray must be aborted or not depending
@@ -304,7 +331,8 @@ private:
    * @see Scene
    * @see AABB
    */
-  inline bool checkEarlyAbort(std::vector<double> const &tMinMax) {
+  inline bool checkEarlyAbort(std::vector<double> const& tMinMax)
+  {
     return tMinMax.empty() || (tMinMax[0] < 0 && tMinMax[1] <= 0);
   }
 
@@ -316,9 +344,10 @@ public:
    * due to compatibility reasons.
    * @see AbstractPulseRunnable::operator()
    */
-  void operator()() override {
+  void operator()() override
+  {
     throw HeliosException(
-        "FullWaveformPulseRunnable operator()() must not be used");
+      "FullWaveformPulseRunnable operator()() must not be used");
   }
   /**
    * @brief Full waveform pulse runnable functor
@@ -330,10 +359,10 @@ public:
    * intersection handling if necessary
    * @see AbstractPulseRunnable::operator()()
    */
-  void operator()(std::vector<std::vector<double>> &apMatrix,
-                  RandomnessGenerator<double> &randGen,
-                  RandomnessGenerator<double> &randGen2,
-                  NoiseSource<double> &intersectionHandlingNoiseSource
+  void operator()(std::vector<std::vector<double>>& apMatrix,
+                  RandomnessGenerator<double>& randGen,
+                  RandomnessGenerator<double>& randGen2,
+                  NoiseSource<double>& intersectionHandlingNoiseSource
 #if DATA_ANALYTICS >= 2
                   ,
                   std::shared_ptr<HDA_PulseRecorder> pulseRecorder

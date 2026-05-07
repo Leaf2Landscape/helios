@@ -73,7 +73,8 @@ FullWaveformPulseRunnable::operator()(
   map<double, double> reflections;
   vector<RaySceneIntersection> intersects;
   std::vector<DiscreteSubrayReturn> discreteSubrayReturns;
-  FWFSettings const& fwfSettings = scanner->getFWFSettings(pulse.getDeviceIndex());
+  FWFSettings const& fwfSettings =
+    scanner->getFWFSettings(pulse.getDeviceIndex());
   bool const collectDiscreteSubrayReturns =
     fwfSettings.snapToSurface && fwfSettings.beamSampleQuality > 1;
 #if DATA_ANALYTICS >= 2
@@ -540,12 +541,14 @@ FullWaveformPulseRunnable::digestFullWaveform(
   std::vector<double> intersectDistances;
   intersectDistances.reserve(intersects.size());
   for (RaySceneIntersection const& isc : intersects) {
-    intersectDistances.push_back(glm::distance(isc.point, pulse.getOriginRef()));
+    intersectDistances.push_back(
+      glm::distance(isc.point, pulse.getOriginRef()));
   }
 
   // Surface snapping: snap returns to actual mesh hit points, eliminating
   // angle-dependent slant bias in full waveform Gaussian peak distances
-  FWFSettings const& fwfSettings = scanner->getFWFSettings(pulse.getDeviceIndex());
+  FWFSettings const& fwfSettings =
+    scanner->getFWFSettings(pulse.getDeviceIndex());
   bool const snapToSurface =
     fwfSettings.snapToSurface && fwfSettings.beamSampleQuality > 1;
   vector<double> const& timeWave = scanner->getTimeWave(pulse.getDeviceIndex());
@@ -557,10 +560,10 @@ FullWaveformPulseRunnable::digestFullWaveform(
     for (std::size_t k = 0; k < discreteSubrayReturns.size(); ++k) {
       DiscreteSubrayReturn const& dsr = discreteSubrayReturns[k];
       double const wavePeakTime_ns = dsr.distance / SPEEDofLIGHT_mPerNanosec;
-      int const binStart = std::max(
-        (((int)((wavePeakTime_ns - minHitTime_ns) / nsPerBin)) -
-         peakIntensityIndex),
-        0);
+      int const binStart =
+        std::max((((int)((wavePeakTime_ns - minHitTime_ns) / nsPerBin)) -
+                  peakIntensityIndex),
+                 0);
       if (binStart >= numFullwaveBins)
         continue;
       int const binEnd =
@@ -654,8 +657,7 @@ FullWaveformPulseRunnable::digestFullWaveform(
           closestIntersection->point - pulse.getOriginRef();
         double const discreteDirectionNorm = glm::length(discreteDirection);
         if (discreteDirectionNorm > 0.0) {
-          measurementBeamDirection =
-            discreteDirection / discreteDirectionNorm;
+          measurementBeamDirection = discreteDirection / discreteDirectionNorm;
           distance = discreteDirectionNorm;
         }
       }

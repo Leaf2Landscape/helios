@@ -292,10 +292,9 @@ XmlSurveyLoader::loadSurveyCore(tinyxml2::XMLElement* surveyNode,
   size_t const numDevices = survey->scanner->getNumDevices();
   for (size_t devIdx = 0; devIdx < numDevices; ++devIdx) {
     survey->scanner->applySettingsFWF(
-      *createFWFSettingsFromXml(
-        scannerFWFSettingsNode,
-        std::make_shared<FWFSettings>(
-          FWFSettings(survey->scanner->getFWFSettings(devIdx)))),
+      *createFWFSettingsFromXml(scannerFWFSettingsNode,
+                                std::make_shared<FWFSettings>(FWFSettings(
+                                  survey->scanner->getFWFSettings(devIdx)))),
       devIdx);
   }
   // Read number of runs

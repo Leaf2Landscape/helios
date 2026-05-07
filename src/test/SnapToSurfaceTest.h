@@ -2,35 +2,27 @@
 
 #include <BaseTest.h>
 #include <platform/LinearPathPlatform.h>
+#include <scanner/SingleScanner.h>
+#include <scanner/detector/FullWaveformPulseRunnable.h>
 #include <scene/Material.h>
 #include <scene/Scene.h>
 #include <scene/primitives/Voxel.h>
-#include <scanner/SingleScanner.h>
-
-#define private public
-#include <scanner/detector/FullWaveformPulseRunnable.h>
-#undef private
 
 namespace HeliosTests {
 
 /**
  * @brief Test for full-waveform snapToSurface behavior
  */
-class SnapToSurfaceTest : public BaseTest
-{
+class SnapToSurfaceTest : public BaseTest {
 public:
   double const eps = 1e-6;
 
-  SnapToSurfaceTest()
-    : BaseTest("Snap to surface test")
-  {
-  }
+  SnapToSurfaceTest() : BaseTest("Snap to surface test") {}
 
   bool run() override;
 
 protected:
-  struct RunnableFixture
-  {
+  struct RunnableFixture {
     std::shared_ptr<Scanner> scanner;
     std::shared_ptr<LinearPathPlatform> platform;
     std::shared_ptr<Scene> scene;
@@ -41,32 +33,17 @@ protected:
     std::unique_ptr<FullWaveformPulseRunnable> runnable;
 
     RunnableFixture(bool const snapToSurface, int const beamSampleQuality)
-      : scanner(std::make_shared<SingleScanner>(0.0003,
-                                                glm::dvec3(0, 0, 0),
-                                                Rotation(),
-                                                std::list<int>({ 100000 }),
-                                                5.0,
-                                                "scanDev0",
-                                                4.0,
-                                                1.0,
-                                                0.99,
-                                                0.15,
-                                                1.0,
-                                                1064,
-                                                nullptr,
-                                                false,
-                                                false,
-                                                false,
-                                                false,
-                                                false))
-      , platform(std::make_shared<LinearPathPlatform>())
-      , scene(std::make_shared<Scene>())
-      , detector(
-          std::make_shared<FullWaveformPulseDetector>(scanner, 0.0, 0.01))
-      , allMeasurements(std::make_shared<std::vector<Measurement>>())
-      , allMeasurementsMutex(std::make_shared<std::mutex>())
-      , pulse(glm::dvec3(0, 0, 0), Rotation(), 0.0, 0u, 0, 0u)
-    {
+        : scanner(std::make_shared<SingleScanner>(
+              0.0003, glm::dvec3(0, 0, 0), Rotation(), std::list<int>({100000}),
+              5.0, "scanDev0", 4.0, 1.0, 0.99, 0.15, 1.0, 1064, nullptr, false,
+              false, false, false, false)),
+          platform(std::make_shared<LinearPathPlatform>()),
+          scene(std::make_shared<Scene>()),
+          detector(
+              std::make_shared<FullWaveformPulseDetector>(scanner, 0.0, 0.01)),
+          allMeasurements(std::make_shared<std::vector<Measurement>>()),
+          allMeasurementsMutex(std::make_shared<std::mutex>()),
+          pulse(glm::dvec3(0, 0, 0), Rotation(), 0.0, 0u, 0, 0u) {
       FWFSettings fwfSettings;
       fwfSettings.snapToSurface = snapToSurface;
       fwfSettings.beamSampleQuality = beamSampleQuality;
@@ -75,7 +52,7 @@ protected:
       scanner->setDetector(detector);
       scanner->setReceivedEnergyMin(0.1);
       scanner->setMaxNOR(1);
-      scanner->setTimeWave(std::vector<double>({ 1.0 }));
+      scanner->setTimeWave(std::vector<double>({1.0}));
       scanner->platform = platform;
       scanner->allMeasurements = allMeasurements;
       scanner->allMeasurementsMutex = allMeasurementsMutex;
@@ -87,17 +64,15 @@ protected:
   bool testSnapToSurfaceSelectsClosestContributingSurface();
   bool testSnapToSurfaceFallsBackWhenBeamSampleQualityIsOne();
 
-  static glm::dvec3 normalize(glm::dvec3 const& v)
-  {
+  static glm::dvec3 normalize(glm::dvec3 const &v) {
     return v / glm::length(v);
   }
 
-  bool validateMeasurement(Measurement const& measurement,
-                           glm::dvec3 const& expectedDirection,
+  bool validateMeasurement(Measurement const &measurement,
+                           glm::dvec3 const &expectedDirection,
                            double const expectedDistance,
-                           std::string const& expectedHitObjectId,
-                           int const expectedClassification)
-  {
+                           std::string const &expectedHitObjectId,
+                           int const expectedClassification) {
     if (measurement.hitObjectId != expectedHitObjectId)
       return false;
     if (measurement.classification != expectedClassification)
@@ -110,9 +85,7 @@ protected:
   }
 };
 
-bool
-SnapToSurfaceTest::run()
-{
+bool SnapToSurfaceTest::run() {
   if (!testSnapToSurfaceSelectsClosestContributingSurface())
     return false;
   if (!testSnapToSurfaceFallsBackWhenBeamSampleQualityIsOne())
@@ -120,9 +93,7 @@ SnapToSurfaceTest::run()
   return true;
 }
 
-bool
-SnapToSurfaceTest::testSnapToSurfaceSelectsClosestContributingSurface()
-{
+bool SnapToSurfaceTest::testSnapToSurfaceSelectsClosestContributingSurface() {
   RunnableFixture fixture(true, 3);
 
   auto fallbackPart = std::make_shared<ScenePart>();
@@ -158,35 +129,22 @@ SnapToSurfaceTest::testSnapToSurfaceSelectsClosestContributingSurface()
   std::vector<Measurement> pointsMeasurement;
   int numReturns = 0;
   std::vector<std::vector<double>> apMatrix;
-  std::vector<double> fullwave({ 10.0, 0.0, 0.0 });
+  std::vector<double> fullwave({10.0, 0.0, 0.0});
 
-  fixture.runnable->digestFullWaveform(pointsMeasurement,
-                                       numReturns,
-                                       apMatrix,
-                                       fullwave,
-                                       intersects,
-                                       glm::dvec3(0.0, 1.0, 0.0),
-                                       1.0,
-                                       3,
-                                       0,
-                                       33.5,
-                                       discreteSubrayReturns);
+  fixture.runnable->digestFullWaveform(
+      pointsMeasurement, numReturns, apMatrix, fullwave, intersects,
+      glm::dvec3(0.0, 1.0, 0.0), 1.0, 3, 0, 33.5, discreteSubrayReturns);
 
   if (numReturns != 1 || pointsMeasurement.size() != 1)
     return false;
 
   glm::dvec3 const expectedDirection = normalize(intersects[1].point);
   double const expectedDistance = glm::length(intersects[1].point);
-  return validateMeasurement(pointsMeasurement[0],
-                             expectedDirection,
-                             expectedDistance,
-                             "snap_candidate",
-                             7);
+  return validateMeasurement(pointsMeasurement[0], expectedDirection,
+                             expectedDistance, "snap_candidate", 7);
 }
 
-bool
-SnapToSurfaceTest::testSnapToSurfaceFallsBackWhenBeamSampleQualityIsOne()
-{
+bool SnapToSurfaceTest::testSnapToSurfaceFallsBackWhenBeamSampleQualityIsOne() {
   RunnableFixture fixture(true, 1);
 
   auto fallbackPart = std::make_shared<ScenePart>();
@@ -222,30 +180,19 @@ SnapToSurfaceTest::testSnapToSurfaceFallsBackWhenBeamSampleQualityIsOne()
   std::vector<Measurement> pointsMeasurement;
   int numReturns = 0;
   std::vector<std::vector<double>> apMatrix;
-  std::vector<double> fullwave({ 10.0, 0.0, 0.0 });
+  std::vector<double> fullwave({10.0, 0.0, 0.0});
 
-  fixture.runnable->digestFullWaveform(pointsMeasurement,
-                                       numReturns,
-                                       apMatrix,
-                                       fullwave,
-                                       intersects,
-                                       glm::dvec3(0.0, 1.0, 0.0),
-                                       1.0,
-                                       3,
-                                       0,
-                                       33.5,
-                                       discreteSubrayReturns);
+  fixture.runnable->digestFullWaveform(
+      pointsMeasurement, numReturns, apMatrix, fullwave, intersects,
+      glm::dvec3(0.0, 1.0, 0.0), 1.0, 3, 0, 33.5, discreteSubrayReturns);
 
   if (numReturns != 1 || pointsMeasurement.size() != 1)
     return false;
 
   glm::dvec3 const expectedDirection = glm::dvec3(0.0, 1.0, 0.0);
   double const expectedDistance = SPEEDofLIGHT_mPerNanosec * 33.5;
-  return validateMeasurement(pointsMeasurement[0],
-                             expectedDirection,
-                             expectedDistance,
-                             "fallback_candidate",
-                             3);
+  return validateMeasurement(pointsMeasurement[0], expectedDirection,
+                             expectedDistance, "fallback_candidate", 3);
 }
 
-}
+} // namespace HeliosTests

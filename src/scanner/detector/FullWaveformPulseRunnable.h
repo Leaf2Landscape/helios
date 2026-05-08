@@ -28,7 +28,7 @@ class SnapToSurfaceTest;
  */
 struct DiscreteSubrayReturn
 {
-  double distance = 0.0;
+  int subrayRadiusStep = 0;
   double intensity = 0.0;
   std::size_t intersectsIndex = 0; // Index into intersects array
 };

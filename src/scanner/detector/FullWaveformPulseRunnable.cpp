@@ -303,7 +303,7 @@ FullWaveformPulseRunnable::handleSubray(
         intersects.push_back(*intersect);
         if (collectDiscreteSubrayReturns) {
           DiscreteSubrayReturn dsr;
-          dsr.distance = distance;
+          dsr.subrayRadiusStep = subrayRadiusStep;
           dsr.intensity = intensity;
           dsr.intersectsIndex = intersectsIndex;
           discreteSubrayReturns.push_back(dsr);
@@ -554,28 +554,6 @@ FullWaveformPulseRunnable::digestFullWaveform(
   vector<double> const& timeWave = scanner->getTimeWave(pulse.getDeviceIndex());
   bool const canSnapToSurface =
     snapToSurface && !discreteSubrayReturns.empty() && !timeWave.empty();
-  std::vector<std::vector<std::size_t>> contributorsByBin;
-  if (canSnapToSurface) {
-    contributorsByBin.resize(numFullwaveBins);
-    for (std::size_t k = 0; k < discreteSubrayReturns.size(); ++k) {
-      DiscreteSubrayReturn const& dsr = discreteSubrayReturns[k];
-      double const wavePeakTime_ns = dsr.distance / SPEEDofLIGHT_mPerNanosec;
-      int const binStart =
-        std::max((((int)((wavePeakTime_ns - minHitTime_ns) / nsPerBin)) -
-                  peakIntensityIndex),
-                 0);
-      if (binStart >= numFullwaveBins)
-        continue;
-      int const binEnd =
-        std::min(binStart + (int)timeWave.size() - 1, numFullwaveBins - 1);
-      for (int bin = binStart; bin <= binEnd; ++bin) {
-        int const waveBinIdx = bin - binStart;
-        if (timeWave[waveBinIdx] * dsr.intensity > 0.0) {
-          contributorsByBin[bin].push_back(k);
-        }
-      }
-    }
-  }
 
 #if DATA_ANALYTICS >= 2
   std::unordered_set<std::size_t> capturedIndices;
@@ -594,36 +572,52 @@ FullWaveformPulseRunnable::digestFullWaveform(
     shared_ptr<RaySceneIntersection> closestIntersection = nullptr;
     std::size_t closestIntersectionIdx = 0;
 
-    // First priority: surface snapping — find the subray hit whose actual
-    // intersection point is closest to the Gaussian-predicted point
+    // First priority: surface snapping — prefer the innermost contributing
+    // subray ring, then the closest hit within that ring.
     if (canSnapToSurface && i < numFullwaveBins) {
-      std::vector<std::size_t> const& peakContributors = contributorsByBin[i];
-      if (!peakContributors.empty()) {
-        glm::dvec3 const centralPredictedPoint =
-          pulse.getOriginRef() + beamDir * distance;
-        double minPointDifference = numeric_limits<double>::max();
-        std::size_t bestDiscreteIdx = peakContributors.front();
-        for (std::size_t const discreteIdx : peakContributors) {
-          DiscreteSubrayReturn const& candidate =
-            discreteSubrayReturns[discreteIdx];
-          std::size_t const candidateIntersectIdx = candidate.intersectsIndex;
-          if (candidateIntersectIdx >= intersects.size())
-            continue;
-          double const pointDifference = glm::distance(
-            intersects[candidateIntersectIdx].point, centralPredictedPoint);
-          if (pointDifference < minPointDifference) {
-            minPointDifference = pointDifference;
-            bestDiscreteIdx = discreteIdx;
-          }
+      int bestRadiusStep = numeric_limits<int>::max();
+      double bestRadiusDistance = numeric_limits<double>::max();
+      bool foundValidCandidate = false;
+      for (std::size_t discreteIdx = 0;
+           discreteIdx < discreteSubrayReturns.size();
+           ++discreteIdx) {
+        DiscreteSubrayReturn const& candidate =
+          discreteSubrayReturns[discreteIdx];
+        std::size_t const candidateIntersectIdx = candidate.intersectsIndex;
+        if (candidateIntersectIdx >= intersects.size())
+          continue;
+
+        double const candidateDistance =
+          intersectDistances[candidateIntersectIdx];
+        double const wavePeakTime_ns =
+          candidateDistance / SPEEDofLIGHT_mPerNanosec;
+        int const binStart =
+          std::max((((int)((wavePeakTime_ns - minHitTime_ns) / nsPerBin)) -
+                    peakIntensityIndex),
+                   0);
+        if (binStart >= numFullwaveBins || i < binStart)
+          continue;
+
+        int const waveBinIdx = i - binStart;
+        if (waveBinIdx < 0 || waveBinIdx >= (int)timeWave.size())
+          continue;
+        if (timeWave[waveBinIdx] * candidate.intensity <= 0.0)
+          continue;
+
+        if (!foundValidCandidate ||
+            candidate.subrayRadiusStep < bestRadiusStep ||
+            (candidate.subrayRadiusStep == bestRadiusStep &&
+             candidateDistance < bestRadiusDistance)) {
+          foundValidCandidate = true;
+          bestRadiusStep = candidate.subrayRadiusStep;
+          bestRadiusDistance = candidateDistance;
+          closestIntersectionIdx = candidateIntersectIdx;
         }
-        DiscreteSubrayReturn const& bestDsr =
-          discreteSubrayReturns[bestDiscreteIdx];
-        distance = bestDsr.distance;
-        closestIntersectionIdx = bestDsr.intersectsIndex;
-        if (closestIntersectionIdx < intersects.size()) {
-          closestIntersection = make_shared<RaySceneIntersection>(
-            intersects[closestIntersectionIdx]);
-        }
+      }
+      if (foundValidCandidate && closestIntersectionIdx < intersects.size()) {
+        distance = intersectDistances[closestIntersectionIdx];
+        closestIntersection =
+          make_shared<RaySceneIntersection>(intersects[closestIntersectionIdx]);
       }
     }
     // Fallback: standard closest-by-distance

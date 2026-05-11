@@ -289,14 +289,10 @@ XmlSurveyLoader::loadSurveyCore(tinyxml2::XMLElement* surveyNode,
   // Load fullwave form
   tinyxml2::XMLElement* scannerFWFSettingsNode =
     surveyNode->FirstChildElement("FWFSettings");
-  size_t const numDevices = survey->scanner->getNumDevices();
-  for (size_t devIdx = 0; devIdx < numDevices; ++devIdx) {
-    survey->scanner->applySettingsFWF(
-      *createFWFSettingsFromXml(scannerFWFSettingsNode,
-                                std::make_shared<FWFSettings>(FWFSettings(
-                                  survey->scanner->getFWFSettings(devIdx)))),
-      devIdx);
-  }
+  survey->scanner->applySettingsFWF(
+    *createFWFSettingsFromXml(scannerFWFSettingsNode,
+                              std::make_shared<FWFSettings>(FWFSettings(
+                                survey->scanner->getFWFSettings()))));
   // Read number of runs
   survey->numRuns = XmlUtils::getAttributeCast<int>(surveyNode, "numRuns", 1);
   // Load initial simulation speed factor

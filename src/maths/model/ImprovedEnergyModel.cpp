@@ -21,12 +21,13 @@ ImprovedEnergyModel::ImprovedEnergyModel(ScanningDevice const& sd)
 {
   // Cached radii
   int const BSQ = sd.FWF_settings.beamSampleQuality;
+  double const radiusStep_rad = sd.beamDivergence_rad / BSQ;
   radii[0] = 0.0;
   radiiSquared[0] = 0.0;
   negRadiiSquaredx2[0] = 0.0;
   for (int i = 0; i < BSQ; ++i) {
     int const subraysAtRing = (i == 0) ? 1 : (int)(i * PI_2);
-    radii[i + 1] = sd.beamDivergence_rad * (i + 0.5) / (2 * (BSQ - 0.5));
+    radii[i + 1] = (i + 0.5) * radiusStep_rad;
     radiiSquared[i + 1] = radii[i + 1] * radii[i + 1];
     negRadiiSquaredx2[i + 1] = -2.0 * radiiSquared[i + 1];
     targetAreaCache[i] = M_PI / ((double)subraysAtRing);
@@ -127,8 +128,8 @@ ImprovedEnergyModel::computeEmittedPower(ModelArg const& _args)
   return EnergyMaths::calcSubrayWiseEmittedPowerFast(
     deviceConstantExpression[args.subrayRadiusStep],
     wSquared,
-    negRadiiSquaredx2[args.subrayRadiusStep + 1],
-    negRadiiSquaredx2[args.subrayRadiusStep]);
+    negRadiiSquaredx2[args.subrayRadiusStep + 1] * args.targetRangeSquared,
+    negRadiiSquaredx2[args.subrayRadiusStep] * args.targetRangeSquared);
 }
 
 double

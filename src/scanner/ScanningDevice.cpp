@@ -182,7 +182,7 @@ ScanningDevice::calcRaysNumber()
   int count = 1;
   for (int radiusStep = 0; radiusStep < FWF_settings.beamSampleQuality;
        radiusStep++) {
-    int circleSteps = (int)(2 * M_PI) * radiusStep;
+    int circleSteps = (int)(PI_2 * radiusStep);
     count += circleSteps;
   }
 

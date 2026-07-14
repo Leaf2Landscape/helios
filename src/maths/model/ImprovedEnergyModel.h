@@ -70,17 +70,22 @@ class ImprovedEnergyModel : public BaseEnergyModel
   // ***  ATTRIBUTES  *** //
   // ******************** //
   /**
-   * @brief Precomptued radii for each subradius step (i.e., ring).
+   * @brief Precomputed angular radii (in radians, not yet scaled by range)
+   *  for each subradius step (i.e., ring boundary).
    *
    * radii[0] is 0, and for any \f$i>0\f$ radii[i] is:
    *
    * \f[
-   *  \frac{\varphi_* (s+0.5)}{2 (\mathrm{BSQ}-0.5)}
+   *  \left(s-0.5\right) \frac{\varphi_*}{\mathrm{BSQ}}
    * \f]
    *
    * Where \f$\varphi_*\f$ is the device's beam divergence,
    * \f$s\f$ is the subray radius step, and \f$\mathrm{BSQ}\f$ is the beam
-   * sample quality.
+   * sample quality. This matches the angular step used to actually cast
+   * each ring's subrays in ScanningDevice::prepareSimulation, so ring
+   * \f$i\f$'s annulus is centered on its real cast angle. Being an angle,
+   * it must be multiplied by the (squared) target range before being
+   * compared against a physical length such as the beam radius \f$w\f$.
    */
   std::vector<double> radii;
   /**
@@ -237,8 +242,11 @@ public:
    * <ol>
    * <li>\f$w_0\f$ is the beam waist radius</li>
    * <li>\f$n_{\mathrm{sr}}\f$ is the number of subrays at current ring</li>
-   * <li>\f$r_{\mathrm{inner}}\f$ is the radius of the inner ring</li>
-   * <li>\f$r_{\mathrm{outer}}\f$ is the radius of the outer ring</li>
+   * <li>\f$r_{\mathrm{inner}}\f$ is the physical radius (in meters, i.e.,
+   * ImprovedEnergyModel::radii scaled by the target range) of the inner
+   * ring</li>
+   * <li>\f$r_{\mathrm{outer}}\f$ is the physical radius (in meters) of the
+   * outer ring</li>
    * <li>\f$w\f$ is the beam radius for the current range</li>
    * <li>\f$P_T\f$ is the total power reversed following Carlsson et al 2001
    * "Signature simulation and signal analysis for 3-D laser radar" equation

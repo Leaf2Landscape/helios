@@ -12,6 +12,7 @@ target_sources(
   "EnergyModelsTest.cpp"
   "ExprTreeTest.cpp"
   "FluxionumTest.cpp"
+  "FullWaveformPulseRunnableTest.cpp"
   "FunctionalPlatformTest.cpp"
   "GroveTest.cpp"
   "HPCTest.cpp"

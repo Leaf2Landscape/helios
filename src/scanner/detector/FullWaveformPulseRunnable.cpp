@@ -282,8 +282,10 @@ FullWaveformPulseRunnable::handleSubray(
         }
       }
       if (!rayContinues) { // If ray is not continuing
-        // Then register hit by default
-        reflections.insert(pair<double, double>(distance, intensity));
+        // Then register hit by default, accumulating intensity when another
+        // subray already hit at the exact same distance instead of dropping
+        // it (std::map::insert is a no-op on an existing key)
+        reflections[distance] += intensity;
         intersects.push_back(*intersect);
       }
 #if DATA_ANALYTICS >= 2

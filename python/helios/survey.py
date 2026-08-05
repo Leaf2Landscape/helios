@@ -233,7 +233,7 @@ class Survey(Model, cpp_class=_helios.Survey):
             pulse_thread_pool,
             execution_settings.chunk_size,
             str(self.gps_time.timestamp()),
-            True,
+            execution_settings.legacy_energy_model,
             export_to_file,
             execution_settings.discard_shutdown,
             fms,

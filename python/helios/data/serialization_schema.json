@@ -731,7 +731,8 @@
         "kdt_geom_num_threads": {},
         "sah_nodes": {},
         "discard_shutdown": {},
-        "progressbar": {}
+        "progressbar": {},
+        "legacy_energy_model": {}
       }
     },
     "fields_helios_settings_FullWaveformSettings": {

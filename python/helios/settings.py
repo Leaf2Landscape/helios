@@ -155,6 +155,7 @@ class ExecutionSettings(Model, UpdateableMixin):
     :param kdt_geom_num_threads: The number of threads to use for building the geometry of the KDTree. If None, the number of hardware threads will be used.
     :param sah_nodes: The number of nodes to use for the SAH approximation. Only used if the factory type is set to SAH_APPROXIMATION.
     :param discard_shutdown: Whether to discard the shutdown message when the survey is finished.
+    :param legacy_energy_model: Whether to use the legacy energy model (True) or the improved energy model (False) for computing received intensity.
     :type parallelization: ParallelizationStrategy
     :type num_threads: Optional[ThreadCount]
     :type chunk_size: PositiveInt
@@ -167,6 +168,7 @@ class ExecutionSettings(Model, UpdateableMixin):
     :type kdt_geom_num_threads: Optional[ThreadCount]
     :type sah_nodes: PositiveInt
     :type discard_shutdown: bool
+    :type legacy_energy_model: bool
     """
 
     parallelization: ParallelizationStrategy = ParallelizationStrategy.CHUNK
@@ -182,6 +184,7 @@ class ExecutionSettings(Model, UpdateableMixin):
     sah_nodes: PositiveInt = 32
     discard_shutdown: bool = True
     progressbar: ProgressBarStrategy = ProgressBarStrategy.PER_LEG_TIME
+    legacy_energy_model: bool = True
 
 
 class OutputSettings(Model, UpdateableMixin):

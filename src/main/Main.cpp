@@ -140,7 +140,8 @@ main(int argc, char** argv)
              ap.parseKDTreeJobs(),
              ap.parseKDTreeGeometricJobs(),
              ap.parseSAHLossNodes(),
-             ap.parseLegacyEnergyModel());
+             ap.parseLegacyEnergyModel(),
+             ap.parseUseNewEnergyModel());
   }
 
 #if DATA_ANALYTICS >= 2

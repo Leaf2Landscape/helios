@@ -12,6 +12,7 @@ target_sources(
   PRIVATE
   "model/BaseEnergyModel.cpp"
   "model/ImprovedEnergyModel.cpp"
+  "model/NewEnergyModel.cpp"
   "rigidmotion/RigidMotionEngine.cpp"
   "rigidmotion/RigidMotionR2Factory.cpp"
   "rigidmotion/RigidMotionR3Factory.cpp"

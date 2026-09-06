@@ -214,7 +214,8 @@ public:
   /**
    * @brief Prepare the scanner to deal with the simulation.
    */
-  virtual void prepareSimulation(bool const legacyEnergyModel = 0) = 0;
+  virtual void prepareSimulation(bool const legacyEnergyModel = 0,
+                                 bool const useNewEnergyModel = 0) = 0;
   /**
    * @brief Initialize randomness generators and noise sources that are
    *  necessary for sequential pulse computations
@@ -1016,6 +1017,40 @@ public:
    * @Scanner::setBt2(double const, size_t const)
    */
   inline void setBt2(double const bt2) { setBt2(bt2, 0); }
+
+  /**
+   * @brief Obtain the half divergence (the true boresight-to-edge
+   *  half-angle, half of the raw full-angle beamDivergence_rad)
+   * @param idx The index of the scanning device which cached half
+   *  divergence must be obtained (by default 0, it is the first one)
+   * @return The half divergence (radians)
+   * @see ScanningDevice::cached_halfDivergence_rad
+   */
+  virtual double getHalfDivergence(size_t const idx) const = 0;
+  /**
+   * @brief No index argument version of the Scanner::getHalfDivergence
+   *  method
+   * @see Scanner::getHalfDivergence(size_t const)
+   */
+  inline double getHalfDivergence() const { return getHalfDivergence(0); }
+  /**
+   * @brief Set the half divergence
+   * @param halfDivergence New half divergence
+   * @param idx The index of the scanning device which cached half
+   *  divergence must be set (by default 0, it is the first one)
+   * @see ScanningDevice::cached_halfDivergence_rad
+   */
+  virtual void setHalfDivergence(double const halfDivergence,
+                                 size_t const idx) = 0;
+  /**
+   * @brief No index argument version of the Scanner::setHalfDivergence
+   *  method
+   * @see Scanner::setHalfDivergence(double const, size_t const)
+   */
+  inline void setHalfDivergence(double const halfDivergence)
+  {
+    setHalfDivergence(halfDivergence, 0);
+  }
 
   /**
    * @brief Obtain \f$D_{r2}\f$

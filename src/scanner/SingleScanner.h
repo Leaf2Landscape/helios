@@ -78,7 +78,8 @@ public:
   /**
    * @see Scanner::prepareSimulation
    */
-  void prepareSimulation(bool const legacyEnergyModel = false) override;
+  void prepareSimulation(bool const legacyEnergyModel = false,
+                        bool const useNewEnergyModel = false) override;
   /**
    * @see Scanner::applySettings
    */
@@ -415,6 +416,20 @@ public:
   void setBt2(double const bt2, size_t const idx) override
   {
     scanDev.cached_Bt2 = bt2;
+  }
+  /**
+   * @see Scanner::getHalfDivergence
+   */
+  double getHalfDivergence(size_t const idx) const override
+  {
+    return scanDev.cached_halfDivergence_rad;
+  }
+  /**
+   * @see Scanner::setHalfDivergence
+   */
+  void setHalfDivergence(double const halfDivergence, size_t const idx) override
+  {
+    scanDev.cached_halfDivergence_rad = halfDivergence;
   }
   /**
    * @see Scanner::getDr2

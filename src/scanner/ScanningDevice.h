@@ -48,6 +48,7 @@ protected:
   friend class MultiScanner;
   friend class BaseEnergyModel;
   friend class ImprovedEnergyModel;
+  friend class NewEnergyModel;
   friend class HeliosTests::EnergyModelsTest;
 
   // ***  DEVICE ATTRIBUTES  *** //
@@ -238,6 +239,17 @@ public:
    */
   double cached_Bt2;
   /**
+   * @brief Half of ScanningDevice::beamDivergence_rad -- the true
+   *  boresight-to-edge half-angle. `beamDivergence_rad` is a full angle
+   *  (see the RiPARAMETER-confirmed derivation in the codebase's
+   *  documentation); several places (the beam waist formula, the ring
+   *  casting geometry) need the half-angle, not the raw full-angle field.
+   *  Recomputed in ScanningDevice::configureBeam() alongside cached_Bt2.
+   * @see ScanningDevice::beamDivergence_rad
+   * @see ScanningDevice::configureBeam
+   */
+  double cached_halfDivergence_rad;
+  /**
    * @brief The rotation representing the subray divergence wrt to the
    *  central ray.
    */
@@ -289,8 +301,12 @@ public:
    *
    * @param legacyEnergyModel Whether to use the legacy energy model (True)
    *  or not (False).
+   * @param useNewEnergyModel Whether to use NewEnergyModel (True) instead
+   *  of ImprovedEnergyModel (False, the default) -- ignored if
+   *  legacyEnergyModel is True, which takes precedence.
    */
-  void prepareSimulation(bool const legacyEnergyModel = false);
+  void prepareSimulation(bool const legacyEnergyModel = false,
+                        bool const useNewEnergyModel = false);
 
   /**
    * @brief Configure beam related attributes. It is recommended to
@@ -301,6 +317,7 @@ public:
    * @see ScanningDevice::wavelength_m
    * @see ScanningDevice::beamWaistRadius
    * @see ScanningDevice::cached_Bt2
+   * @see ScanningDevice::cached_halfDivergence_rad
    */
   void configureBeam();
   /**

@@ -114,7 +114,10 @@ def test_roundtrip_yaml_inline(tmp_path):
         document = yaml.safe_load(handle)
     assert "model_ref" not in str(document["fields"]["trajectory_settings"])
     assert document["serialization_major_version"] == 0
-    assert document["serialization_minor_version"] == 0
+    assert (
+        document["serialization_minor_version"]
+        == serialization.SERIALIZATION_FORMAT_MINOR_VERSION
+    )
 
     loaded = DynamicPlatformSettings.from_yaml(yaml_path)
     assert loaded.speed_m_s == 42.0

@@ -17,6 +17,7 @@ target_sources(
   "GroveTest.cpp"
   "HPCTest.cpp"
   "LadLutTest.cpp"
+  "NewEnergyModelTest.cpp"
   "NoiseTest.cpp"
   "PlaneFitterTest.cpp"
   "PlatformPhysicsTest.cpp"

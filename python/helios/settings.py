@@ -156,6 +156,7 @@ class ExecutionSettings(Model, UpdateableMixin):
     :param sah_nodes: The number of nodes to use for the SAH approximation. Only used if the factory type is set to SAH_APPROXIMATION.
     :param discard_shutdown: Whether to discard the shutdown message when the survey is finished.
     :param legacy_energy_model: Whether to use the legacy energy model (True) or the improved energy model (False) for computing received intensity.
+    :param use_new_energy_model: Whether to use the new hybrid energy model (True) instead of the improved energy model (False, the default) for computing received intensity. Ignored if legacy_energy_model is True, which takes precedence.
     :type parallelization: ParallelizationStrategy
     :type num_threads: Optional[ThreadCount]
     :type chunk_size: PositiveInt
@@ -169,6 +170,7 @@ class ExecutionSettings(Model, UpdateableMixin):
     :type sah_nodes: PositiveInt
     :type discard_shutdown: bool
     :type legacy_energy_model: bool
+    :type use_new_energy_model: bool
     """
 
     parallelization: ParallelizationStrategy = ParallelizationStrategy.CHUNK
@@ -185,6 +187,7 @@ class ExecutionSettings(Model, UpdateableMixin):
     discard_shutdown: bool = True
     progressbar: ProgressBarStrategy = ProgressBarStrategy.PER_LEG_TIME
     legacy_energy_model: bool = True
+    use_new_energy_model: bool = False
 
 
 class OutputSettings(Model, UpdateableMixin):

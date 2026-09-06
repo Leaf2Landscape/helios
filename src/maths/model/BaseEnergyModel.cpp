@@ -138,3 +138,25 @@ BaseEnergyModel::computeCrossSection(ModelArg const& _args)
     static_cast<BaseCrossSectionArgs const&>(_args);
   return EnergyMaths::calcCrossSection(args.bdrf, args.targetArea);
 }
+
+double
+BaseEnergyModel::computeIntensityFromSigma(double const targetRange,
+                                           double const sigma,
+                                           int const subrayRadiusStep)
+{
+  double const divergenceAngle_rad =
+    sd.cached_subrayDivergenceAngle_rad[subrayRadiusStep];
+  return EnergyMaths::calcReceivedPower(
+           sd.averagePower_w,
+           sd.wavelength_m,
+           targetRange,
+           sd.detector->cfg_device_rangeMin_m,
+           targetRange * std::sin(divergenceAngle_rad),
+           sd.beamWaistRadius,
+           sd.cached_Dr2,
+           sd.cached_Bt2,
+           sd.efficiency,
+           sd.atmosphericExtinction,
+           sigma) *
+         1000000000.0;
+}

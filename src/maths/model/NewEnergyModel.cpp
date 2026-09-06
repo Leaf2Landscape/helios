@@ -1,24 +1,18 @@
-#include <ImprovedEnergyModel.h>
+#include <NewEnergyModel.h>
 #include <maths/EnergyMaths.h>
 #include <scanner/ScanningDevice.h>
 #include <scanner/detector/AbstractDetector.h>
 
 // ***  CONSTRUCTION / DESTRUCTION  *** //
 // ************************************ //
-ImprovedEnergyModel::ImprovedEnergyModel(ScanningDevice const& sd)
+NewEnergyModel::NewEnergyModel(ScanningDevice const& sd)
   : BaseEnergyModel(sd)
   , radii(sd.FWF_settings.beamSampleQuality + 1)
   , radiiSquared(sd.FWF_settings.beamSampleQuality + 1)
-  , negRadiiSquaredx2(sd.FWF_settings.beamSampleQuality + 1)
-  , w0Squared((sd.beamQuality * sd.wavelength_m) *
-              (sd.beamQuality * sd.wavelength_m) /
-              ((M_PI * sd.cached_halfDivergence_rad) *
-               (M_PI * sd.cached_halfDivergence_rad)))
-  , totPower(2 * sd.averagePower_w / (M_PI * w0Squared))
-  , omegaCacheSquared((sd.wavelength_m / (M_PI * w0Squared)) *
-                      (sd.wavelength_m / (M_PI * w0Squared)))
   , targetAreaCache(sd.FWF_settings.beamSampleQuality)
-  , deviceConstantExpression(sd.FWF_settings.beamSampleQuality)
+  , wSquaredCoefficient((sd.cached_halfDivergence_rad / sd.beamQuality) *
+                        (sd.cached_halfDivergence_rad / sd.beamQuality))
+  , ringEmittedPower(sd.FWF_settings.beamSampleQuality)
 {
   // Cached radii. BSQ-1 denominator (ring-extent fix): makes the existing
   // outermost subray land exactly on cached_halfDivergence_rad instead of
@@ -29,7 +23,6 @@ ImprovedEnergyModel::ImprovedEnergyModel(ScanningDevice const& sd)
     (BSQ > 1) ? sd.cached_halfDivergence_rad / (BSQ - 1) : 0.0;
   radii[0] = 0.0;
   radiiSquared[0] = 0.0;
-  negRadiiSquaredx2[0] = 0.0;
   for (int i = 0; i < BSQ; ++i) {
     int const subraysAtRing = (i == 0) ? 1 : (int)(i * PI_2);
     // Outer-boundary clamp: the last ring's outer boundary is clamped
@@ -41,17 +34,29 @@ ImprovedEnergyModel::ImprovedEnergyModel(ScanningDevice const& sd)
     radii[i + 1] = (i == BSQ - 1) ? sd.cached_halfDivergence_rad
                                   : (i + 0.5) * radiusStep_rad;
     radiiSquared[i + 1] = radii[i + 1] * radii[i + 1];
-    negRadiiSquaredx2[i + 1] = -2.0 * radiiSquared[i + 1];
     targetAreaCache[i] = M_PI / ((double)subraysAtRing);
-    deviceConstantExpression[i] =
-      M_PI * totPower * w0Squared / (2.0 * ((double)subraysAtRing));
+
+    // R^2 cancels completely between the (unscaled, angular) boundary
+    // radii and wSquared(R) = R^2 * wSquaredCoefficient, so this exp-
+    // difference is already the exact, final, range-independent
+    // per-subray share of averagePower_w for this ring -- reuses the same
+    // helper ImprovedEnergyModel calls per-pulse, but only once, here, at
+    // construction time. Prefactor is the already-reduced form directly
+    // (averagePower_w/subraysAtRing), matching the exact simplification
+    // the elliptical-LUT builder's own comment (ScanningDevice.h) already
+    // established -- no w0/totPower round-trip.
+    ringEmittedPower[i] = EnergyMaths::calcSubrayWiseEmittedPowerFast(
+      sd.averagePower_w / (double)subraysAtRing,
+      wSquaredCoefficient,
+      -2.0 * radiiSquared[i + 1], // outer boundary
+      -2.0 * radiiSquared[i]);   // inner boundary
   }
 }
 
 // ***  METHODS  *** //
 // ***************** //
 double
-ImprovedEnergyModel::computeIntensity(
+NewEnergyModel::computeIntensity(
   double const incidenceAngle,
   double const targetRange,
   Material const& mat,
@@ -62,7 +67,7 @@ ImprovedEnergyModel::computeIntensity(
 #endif
 )
 {
-  ImprovedReceivedPowerArgs args = ImprovedReceivedPowerArgs(
+  NewReceivedPowerArgs args = NewReceivedPowerArgs(
     targetRange, incidenceAngle, mat, subrayRadiusStep);
   return computeReceivedPower(args
 #if DATA_ANALYTICS >= 2
@@ -73,7 +78,7 @@ ImprovedEnergyModel::computeIntensity(
 }
 
 double
-ImprovedEnergyModel::computeReceivedPower(
+NewEnergyModel::computeReceivedPower(
   ModelArg const& _args
 #if DATA_ANALYTICS >= 2
   ,
@@ -81,25 +86,23 @@ ImprovedEnergyModel::computeReceivedPower(
 #endif
 )
 {
-  ImprovedReceivedPowerArgs const& args =
-    static_cast<ImprovedReceivedPowerArgs const&>(_args);
+  NewReceivedPowerArgs const& args =
+    static_cast<NewReceivedPowerArgs const&>(_args);
   // Pre-computations
   double const rangeSquared = args.targetRange * args.targetRange;
-  // Emitted power
+  // Emitted power (range-independent -- no range info passed at all)
   double const Pe = computeEmittedPower(
-    ImprovedEmittedPowerArgs{ args.targetRange,
-                              rangeSquared,
-                              sd.detector->cfg_device_rangeMin_m,
-                              args.subrayRadiusStep });
+    NewEmittedPowerArgs{ args.subrayRadiusStep });
   // Target area
   double const targetArea = computeTargetArea(
-    ImprovedTargetAreaArgs{ rangeSquared, args.subrayRadiusStep }
+    NewTargetAreaArgs{ rangeSquared, args.subrayRadiusStep }
 #if DATA_ANALYTICS >= 2
     ,
     calcIntensityRecords
 #endif
   );
-  // Cross-section
+  // Cross-section (inherited from BaseEnergyModel -- no wavelength/range
+  // dependency to begin with)
   double const bdrf =
     EnergyMaths::computeBDRF(args.material, args.incidenceAngle_rad);
   double const sigma = computeCrossSection(
@@ -130,22 +133,17 @@ ImprovedEnergyModel::computeReceivedPower(
 }
 
 double
-ImprovedEnergyModel::computeEmittedPower(ModelArg const& _args)
+NewEnergyModel::computeEmittedPower(ModelArg const& _args)
 {
-  ImprovedEmittedPowerArgs const& args =
-    static_cast<ImprovedEmittedPowerArgs const&>(_args);
-  double const Omega0 = 1 - args.targetRange / args.rangeMin;
-  double const OmegaSquared = args.targetRangeSquared * omegaCacheSquared;
-  double const wSquared = w0Squared * (Omega0 * Omega0 + OmegaSquared);
-  return EnergyMaths::calcSubrayWiseEmittedPowerFast(
-    deviceConstantExpression[args.subrayRadiusStep],
-    wSquared,
-    negRadiiSquaredx2[args.subrayRadiusStep + 1] * args.targetRangeSquared,
-    negRadiiSquaredx2[args.subrayRadiusStep] * args.targetRangeSquared);
+  NewEmittedPowerArgs const& args =
+    static_cast<NewEmittedPowerArgs const&>(_args);
+  // Fully precomputed at construction time -- O(1) lookup, zero trig/exp
+  // work per call.
+  return ringEmittedPower[args.subrayRadiusStep];
 }
 
 double
-ImprovedEnergyModel::computeTargetArea(
+NewEnergyModel::computeTargetArea(
   ModelArg const& _args
 #if DATA_ANALYTICS >= 2
   ,
@@ -153,20 +151,54 @@ ImprovedEnergyModel::computeTargetArea(
 #endif
 )
 {
-  // Once for target area and once for emitted power
-  ImprovedTargetAreaArgs const& args =
-    static_cast<ImprovedTargetAreaArgs const&>(_args);
-  double const prevRadiusSquared = radiiSquared[args.subrayRadiusStep];
-  double const radiusSquared = radiiSquared[args.subrayRadiusStep + 1];
-  double const radius_m_squared = radiusSquared * args.targetRangeSquared;
-  double const prevRadius_m_squared =
-    prevRadiusSquared * args.targetRangeSquared;
+  // Byte-identical logic to ImprovedEnergyModel::computeTargetArea, just
+  // reading NewEnergyModel's own radiiSquared/targetAreaCache.
+  NewTargetAreaArgs const& args =
+    static_cast<NewTargetAreaArgs const&>(_args);
+  double targetArea;
+  double radius_m_squared_for_record = 0.0;
+  {
+    double const prevRadiusSquared = radiiSquared[args.subrayRadiusStep];
+    double const radiusSquared = radiiSquared[args.subrayRadiusStep + 1];
+    double const radius_m_squared = radiusSquared * args.targetRangeSquared;
+    double const prevRadius_m_squared =
+      prevRadiusSquared * args.targetRangeSquared;
+    targetArea = (radius_m_squared - prevRadius_m_squared) *
+                 targetAreaCache[args.subrayRadiusStep];
+#if DATA_ANALYTICS >= 2
+    radius_m_squared_for_record = radius_m_squared;
+#endif
+  }
 #if DATA_ANALYTICS >= 2
   std::vector<double> calcIntensityRecord(
     13, std::numeric_limits<double>::quiet_NaN());
-  calcIntensityRecord[6] = std::sqrt(radius_m_squared);
+  calcIntensityRecord[6] = std::sqrt(radius_m_squared_for_record);
   calcIntensityRecords.push_back(calcIntensityRecord);
 #endif
-  return (radius_m_squared - prevRadius_m_squared) *
-         targetAreaCache[args.subrayRadiusStep];
+  return targetArea;
+}
+
+double
+NewEnergyModel::computeIntensityFromSigma(double const targetRange,
+                                          double const sigma,
+                                          int const subrayRadiusStep)
+{
+  double const rangeSquared = targetRange * targetRange;
+  double const Pe = computeEmittedPower(
+    NewEmittedPowerArgs{ subrayRadiusStep });
+#if DATA_ANALYTICS >= 2
+  std::vector<std::vector<double>> unusedRecords;
+  double const targetArea = computeTargetArea(
+    NewTargetAreaArgs{ rangeSquared, subrayRadiusStep },
+    unusedRecords);
+#else
+  double const targetArea = computeTargetArea(
+    NewTargetAreaArgs{ rangeSquared, subrayRadiusStep });
+#endif
+  double const atmosphericFactor =
+    EnergyMaths::calcAtmosphericFactor(targetRange, sd.atmosphericExtinction);
+  double const receivedPower = EnergyMaths::calcReceivedPowerImprovedFast(
+    Pe, sd.cached_Dr2, 16 * targetArea * rangeSquared, sd.efficiency,
+    atmosphericFactor, sigma);
+  return receivedPower * 1e09;
 }

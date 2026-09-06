@@ -5,6 +5,7 @@
 #include <maths/MathConstants.h>
 #include <maths/model/BaseEnergyModel.h>
 #include <maths/model/ImprovedEnergyModel.h>
+#include <maths/model/NewEnergyModel.h>
 #include <scanner/detector/AbstractDetector.h>
 #if DATA_ANALYTICS >= 2
 #include <dataanalytics/HDA_GlobalVars.h>
@@ -78,6 +79,7 @@ ScanningDevice::ScanningDevice(ScanningDevice const& scdev)
   this->state_opticsWarmupApplied = scdev.state_opticsWarmupApplied;
   this->cached_Dr2 = scdev.cached_Dr2;
   this->cached_Bt2 = scdev.cached_Bt2;
+  this->cached_halfDivergence_rad = scdev.cached_halfDivergence_rad;
 
   if (scdev.scannerHead == nullptr)
     this->scannerHead = nullptr;
@@ -96,7 +98,8 @@ ScanningDevice::ScanningDevice(ScanningDevice const& scdev)
 // ***  M E T H O D S  *** //
 // *********************** //
 void
-ScanningDevice::prepareSimulation(bool const legacyEnergyModel)
+ScanningDevice::prepareSimulation(bool const legacyEnergyModel,
+                                  bool const useNewEnergyModel)
 {
   // Reset cached subray data for a clean elliptical sampling pass
   cached_subrayRotation.clear();
@@ -105,7 +108,16 @@ ScanningDevice::prepareSimulation(bool const legacyEnergyModel)
 
   // Elliptical footprint discrete method
   int const beamSampleQuality = FWF_settings.beamSampleQuality;
-  double const radiusStep_rad = beamDivergence_rad / beamSampleQuality;
+  // cached_halfDivergence_rad (not the raw, full-angle beamDivergence_rad)
+  // is the correct boresight-to-edge half-angle (RiPARAMETER-confirmed).
+  // BSQ-1 denominator (ring-extent fix): makes the *existing* outermost
+  // subray land exactly on cached_halfDivergence_rad instead of falling
+  // short of it, at zero added subray cost. Guarded for BSQ=1 -- safe even
+  // at 0.0, since the only radiusStep used there is 0.
+  double const radiusStep_rad =
+    (beamSampleQuality > 1)
+      ? cached_halfDivergence_rad / (beamSampleQuality - 1)
+      : 0.0;
 
   // Outer loop over radius steps from beam center to outer edge
   for (int radiusStep = 0; radiusStep < beamSampleQuality; radiusStep++) {
@@ -139,6 +151,8 @@ ScanningDevice::prepareSimulation(bool const legacyEnergyModel)
   // Prepare energy model
   if (legacyEnergyModel) {
     energyModel = std::make_shared<BaseEnergyModel>(*this);
+  } else if (useNewEnergyModel) {
+    energyModel = std::make_shared<NewEnergyModel>(*this);
   } else {
     energyModel = std::make_shared<ImprovedEnergyModel>(*this);
   }
@@ -147,8 +161,13 @@ ScanningDevice::prepareSimulation(bool const legacyEnergyModel)
 void
 ScanningDevice::configureBeam()
 {
-  cached_Bt2 = beamDivergence_rad * beamDivergence_rad;
-  beamWaistRadius = (beamQuality * wavelength_m) / (M_PI * beamDivergence_rad);
+  // beamDivergence_rad is a full angle (confirmed against RiPARAMETER for
+  // a real RIEGL scanner); cached_Bt2/beamWaistRadius need the true
+  // boresight-to-edge half-angle, not the raw field.
+  cached_halfDivergence_rad = beamDivergence_rad / 2.0;
+  cached_Bt2 = cached_halfDivergence_rad * cached_halfDivergence_rad;
+  beamWaistRadius =
+    (beamQuality * wavelength_m) / (M_PI * cached_halfDivergence_rad);
 }
 
 // Simulate energy loss from aerial particles (Carlsson et al., 2001)
@@ -421,20 +440,12 @@ ScanningDevice::calcIntensity(double const targetRange,
                               double const sigma,
                               int const subrayRadiusStep) const
 {
-  return EnergyMaths::calcReceivedPower(
-           averagePower_w,
-           wavelength_m,
-           targetRange,
-           detector->cfg_device_rangeMin_m,
-           targetRange *
-             std::sin(cached_subrayDivergenceAngle_rad[subrayRadiusStep]),
-           beamWaistRadius,
-           cached_Dr2,
-           cached_Bt2,
-           efficiency,
-           atmosphericExtinction,
-           sigma) *
-         1000000000.0;
+  // Delegates to whichever energy model is selected, via
+  // EnergyModel::computeIntensityFromSigma -- previously this bypassed
+  // energyModel entirely and always used BaseEnergyModel's formula
+  // regardless of which model was selected.
+  return energyModel->computeIntensityFromSigma(
+    targetRange, sigma, subrayRadiusStep);
 }
 
 // ***  GETTERs and SETTERs  *** //

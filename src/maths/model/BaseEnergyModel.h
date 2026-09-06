@@ -277,4 +277,17 @@ public:
    * @see EnergyModel::computeCrossSection
    */
   double computeCrossSection(ModelArg const& args) override;
+  /**
+   * @brief Compute the intensity from a precomputed cross-section
+   *  \f$\sigma\f$ (e.g. a LadLut lookup for a DetailedVoxel hit), bypassing
+   *  computeCrossSection entirely. This is the same "solve the laser radar
+   *  equation" formula computeReceivedPower uses, evaluated directly at
+   *  the subray's own physical radius instead of via a ring-boundary
+   *  difference.
+   * @see EnergyModel::computeIntensityFromSigma
+   */
+  double computeIntensityFromSigma(
+    double const targetRange,
+    double const sigma,
+    int const subrayRadiusStep) override;
 };

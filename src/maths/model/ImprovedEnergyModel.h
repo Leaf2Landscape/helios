@@ -73,19 +73,27 @@ class ImprovedEnergyModel : public BaseEnergyModel
    * @brief Precomputed angular radii (in radians, not yet scaled by range)
    *  for each subradius step (i.e., ring boundary).
    *
-   * radii[0] is 0, and for any \f$i>0\f$ radii[i] is:
+   * radii[0] is 0, and for any \f$0<i<\mathrm{BSQ}\f$ radii[i] is:
    *
    * \f[
-   *  \left(s-0.5\right) \frac{\varphi_*}{\mathrm{BSQ}}
+   *  \left(s-0.5\right) \frac{\varphi_{1/2}}{\mathrm{BSQ}-1}
    * \f]
    *
-   * Where \f$\varphi_*\f$ is the device's beam divergence,
-   * \f$s\f$ is the subray radius step, and \f$\mathrm{BSQ}\f$ is the beam
-   * sample quality. This matches the angular step used to actually cast
-   * each ring's subrays in ScanningDevice::prepareSimulation, so ring
-   * \f$i\f$'s annulus is centered on its real cast angle. Being an angle,
-   * it must be multiplied by the (squared) target range before being
-   * compared against a physical length such as the beam radius \f$w\f$.
+   * Where \f$\varphi_{1/2}\f$ is the device's true boresight-to-edge
+   * half-angle (ScanningDevice::cached_halfDivergence_rad, half of the raw
+   * full-angle beamDivergence_rad), \f$s\f$ is the subray radius step, and
+   * \f$\mathrm{BSQ}\f$ is the beam sample quality. This matches the
+   * angular step used to actually cast each ring's subrays in
+   * ScanningDevice::prepareSimulation, so ring \f$i\f$'s annulus is
+   * centered on its real cast angle. The last ring (\f$i=\mathrm{BSQ}\f$)
+   * is clamped directly to \f$\varphi_{1/2}\f$ instead of following the
+   * general formula, which would overshoot the true edge and make total
+   * captured energy vary with \f$\mathrm{BSQ}\f$ instead of the fixed
+   * \f$1-e^{-2\mathrm{BQ}^2}\f$ it should be at every \f$\mathrm{BSQ}\f$
+   * (including \f$\mathrm{BSQ}=1\f$, which is exactly this clamp's
+   * \f$i=0\f$ case). Being an angle, it must be multiplied by the
+   * (squared) target range before being compared against a physical
+   * length such as the beam radius \f$w\f$.
    */
   std::vector<double> radii;
   /**
@@ -101,10 +109,11 @@ class ImprovedEnergyModel : public BaseEnergyModel
    * @brief Precomputed squared of beam waist radius:
    *
    * \f[
-   *  w_0^2 = \left(\frac{\mathrm{BQ} \lambda}{\pi \varphi_*}\right)^2
+   *  w_0^2 = \left(\frac{\mathrm{BQ} \lambda}{\pi \varphi_{1/2}}\right)^2
    * \f]
    *
-   * Where \f$\varphi_*\f$ is the device's beam divergence,
+   * Where \f$\varphi_{1/2}\f$ is the device's true boresight-to-edge
+   * half-angle (ScanningDevice::cached_halfDivergence_rad),
    * \f$\lambda\f$ is the wavelength (in meters), and \f$\mathrm{BQ}\f$
    * the beam quality factor.
    */

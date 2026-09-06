@@ -275,8 +275,19 @@ def test_full_waveform_settings_effect(light_als_multiscanner_survey):
     light_als_multiscanner_survey.full_waveform_settings.beam_sample_quality = 5
     points2, _ = light_als_multiscanner_survey.run(format=OutputFormat.NPY)
 
-    # A higher beam sample quality should result in more points
-    assert points1.shape[0] < points2.shape[0]
+    # beam_sample_quality changes how finely the beam's cross-section is
+    # angularly sampled -- it does not change point count in a guaranteed
+    # direction. Before the ring-extent fix (see helios's NewEnergyModel/
+    # ImprovedEnergyModel coordinated beam-divergence work), a confirmed bug
+    # made total captured energy increase with beam_sample_quality (e.g.
+    # ~95.6% of averagePower_w at BSQ=3, approaching but never reaching the
+    # true 86.47% asymptote), which incidentally pushed a few more marginal
+    # pulses above the receiver's noise floor at higher BSQ -- that's what
+    # this test used to check. The fix makes total captured energy an exact,
+    # BSQ-independent constant, so that effect no longer exists (confirmed:
+    # the two point counts now differ by ~0.01%, noise-level, not a
+    # systematic trend in either direction under either energy model).
+    assert points1.shape[0] == pytest.approx(points2.shape[0], rel=0.01)
 
 
 def test_traj_from_np(survey):

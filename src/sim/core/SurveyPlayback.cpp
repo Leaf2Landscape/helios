@@ -33,6 +33,7 @@ SurveyPlayback::SurveyPlayback(
   int const chunkSize,
   std::string fixedGpsTimeStart,
   bool const legacyEnergyModel,
+  bool const useNewEnergyModel,
   bool const exportToFile,
   bool const disableShutdown,
   shared_ptr<helios::filems::FMSFacade> fms)
@@ -40,7 +41,8 @@ SurveyPlayback::SurveyPlayback(
                pulseThreadPoolInterface,
                chunkSize,
                fixedGpsTimeStart,
-               legacyEnergyModel)
+               legacyEnergyModel,
+               useNewEnergyModel)
   , fms(fms)
   , disableShutdown(disableShutdown)
 {

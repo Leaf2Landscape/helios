@@ -305,6 +305,12 @@ ArgumentsParser::parseLegacyEnergyModel()
   return findIndexOfArgument("--legacyEnergyModel") >= 0;
 }
 
+bool
+ArgumentsParser::parseUseNewEnergyModel()
+{
+  return findIndexOfArgument("--useNewEnergyModel") >= 0;
+}
+
 // *** PRIVATE METHODS *** //
 // *********************** //
 int

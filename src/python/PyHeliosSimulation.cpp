@@ -179,6 +179,7 @@ PyHeliosSimulation::start()
                                               chunkSize,
                                               fixedGpsTimeStart,
                                               legacyEnergyModel,
+                                              useNewEnergyModel,
                                               exportToFile,
                                               true,
                                               fms);

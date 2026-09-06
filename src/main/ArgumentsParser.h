@@ -259,6 +259,16 @@ public:
    * @see ScanningDevice
    */
   bool parseLegacyEnergyModel();
+  /**
+   * @brief Parse whether NewEnergyModel must be used (true) instead of
+   *  ImprovedEnergyModel (false) -- ignored if the legacy energy model
+   *  flag is set, which takes precedence.
+   * @return True if NewEnergyModel must be used, false otherwise.
+   * @see EnergyModel
+   * @see NewEnergyModel
+   * @see ScanningDevice
+   */
+  bool parseUseNewEnergyModel();
 
 private:
   // *** PRIVATE ATTRIBUTES *** //

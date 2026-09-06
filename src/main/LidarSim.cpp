@@ -41,7 +41,8 @@ LidarSim::init(std::string surveyPath,
                size_t kdtJobs,
                size_t kdtGeomJobs,
                size_t sahLossNodes,
-               bool const legacyEnergyModel)
+               bool const legacyEnergyModel,
+               bool const useNewEnergyModel)
 {
   // Info about execution arguments
   std::stringstream ss;
@@ -122,6 +123,7 @@ LidarSim::init(std::string surveyPath,
                                      std::abs(chunkSize),
                                      gpsStartTime,
                                      legacyEnergyModel,
+                                     useNewEnergyModel,
                                      true,
                                      false,
                                      fms);

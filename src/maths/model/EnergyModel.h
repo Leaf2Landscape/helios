@@ -109,4 +109,19 @@ public:
    * @return The target area \f$\sigma\f$.
    */
   virtual double computeCrossSection(ModelArg const& args) = 0;
+  /**
+   * @brief Compute the intensity, i.e., the received power, from a
+   *  precomputed cross-section \f$\sigma\f$ (e.g. from a LadLut lookup)
+   *  instead of a material/incidence-angle pair, bypassing
+   *  EnergyModel::computeCrossSection entirely.
+   * @param targetRange The target range (in meters)
+   * @param sigma The precomputed cross-section \f$\sigma\f$
+   * @param subrayRadiusStep The step corresponding to the subray radius
+   *  (i.e., ring).
+   * @return The computed intensity or received power.
+   */
+  virtual double computeIntensityFromSigma(
+    double const targetRange,
+    double const sigma,
+    int const subrayRadiusStep) = 0;
 };

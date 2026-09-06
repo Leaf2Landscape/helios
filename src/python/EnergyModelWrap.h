@@ -49,4 +49,17 @@ public:
   {
     PYBIND11_OVERLOAD_PURE(double, EnergyModel, computeCrossSection, args);
   }
+
+  double computeIntensityFromSigma(
+    double const targetRange,
+    double const sigma,
+    int const subrayRadiusStep) override
+  {
+    PYBIND11_OVERLOAD_PURE(double,
+                           EnergyModel,
+                           computeIntensityFromSigma,
+                           targetRange,
+                           sigma,
+                           subrayRadiusStep);
+  }
 };

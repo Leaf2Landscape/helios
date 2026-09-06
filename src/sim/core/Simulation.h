@@ -174,6 +174,16 @@ protected:
    */
   bool legacyEnergyModel = false;
   /**
+   * @brief Whether to use NewEnergyModel (true) instead of
+   *  ImprovedEnergyModel (false, the default) -- ignored if
+   *  legacyEnergyModel is true, which takes precedence.
+   * @see EnergyModel
+   * @see NewEnergyModel
+   * @see ScanningDevice
+   * @see Simulation::prepareSimulation
+   */
+  bool useNewEnergyModel = false;
+  /**
    * @brief The report to generate reports about simulation
    * @see SimulationReporter
    */
@@ -232,7 +242,8 @@ public:
              std::shared_ptr<PulseThreadPoolInterface> pulseThreadPoolInterface,
              int const chunkSize,
              std::string fixedGpsTimeStart = "",
-             bool const legacyEnergyModel = false);
+             bool const legacyEnergyModel = false,
+             bool const useNewEnergyModel = false);
 
   // ***  SIMULATION METHODS  *** //
   // **************************** //

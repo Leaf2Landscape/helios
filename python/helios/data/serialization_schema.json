@@ -109,7 +109,7 @@
           "const": 0
         },
         "serialization_minor_version": {
-          "const": 0
+          "enum": [0, 1]
         },
         "model_class": {
           "enum": [
@@ -732,7 +732,8 @@
         "sah_nodes": {},
         "discard_shutdown": {},
         "progressbar": {},
-        "legacy_energy_model": {}
+        "legacy_energy_model": {},
+        "use_new_energy_model": {}
       }
     },
     "fields_helios_settings_FullWaveformSettings": {

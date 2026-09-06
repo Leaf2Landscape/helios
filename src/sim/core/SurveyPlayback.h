@@ -110,6 +110,7 @@ public:
     int const chunkSize,
     std::string fixedGpsTimeStart,
     bool const legacyEnergyModel,
+    bool const useNewEnergyModel = false,
     bool const exportToFile = true,
     bool const disableShutdown = false,
     std::shared_ptr<helios::filems::FMSFacade> fms = nullptr);

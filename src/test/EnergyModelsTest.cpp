@@ -146,28 +146,37 @@ TEST_CASE("Energy Models Test ")
     float ks[4] = { 0, 0, 0, 0 };
     std::copy(std::begin(ks), std::end(ks), std::begin(material.ks));
 
+    // Golden values regenerated for the coordinated beam-divergence fix +
+    // ring-extent fix (cached_halfDivergence_rad, BSQ-1 denominator, outer-
+    // boundary clamp -- see ScanningDevice::prepareSimulation/
+    // ImprovedEnergyModel's constructor): independently recomputed in
+    // Python from ImprovedEnergyModel's exact formula (w0Squared/totPower/
+    // omegaCacheSquared/radii construction, Pe via calcSubrayWiseEmittedPowerFast,
+    // targetArea, calcCrossSection, calcReceivedPowerImprovedFast), then
+    // cross-checked against this test's own compiled output before being
+    // written here -- not copied blindly from the corrected code's output.
     auto [raytracingRange, incidenceAngle, divergenceAngle, expectedIntensity] =
       GENERATE(
-        std::make_tuple(0.1, 0.0, 0.0003, 0.0016944653501892728),
-        std::make_tuple(0.5, 0.01, 0.00003, 5.7162595762529559e-05),
-        std::make_tuple(1.0, 0.036, 0.000003, 1.3994704142630095e-05),
-        std::make_tuple(1.3, 0.1, 0.0000003, 8.2082244537851853e-06),
-        std::make_tuple(1.5, 0.12, 0.003, 6.1379499615213924e-06),
-        std::make_tuple(2.1, 0.0, 0.0001, 3.1428056176348065e-06),
-        std::make_tuple(3.7, 0.1, 0.00001, 1.0030793949400564e-06),
-        std::make_tuple(5.0, 0.2, 0.000001, 5.4026593416462289e-07),
-        std::make_tuple(10.0, 0.3, 0.0000001, 1.3138666190414419e-07),
-        std::make_tuple(22.3, 0.4, 0.001, 2.5438162975634665e-08),
-        std::make_tuple(28.8, 0.5, 0.0002, 1.4525665701644939e-08),
-        std::make_tuple(30.9, 0.4, 0.00002, 1.3243046756709799e-08),
-        std::make_tuple(51.7, 0.2, 0.000002, 5.0304190149318903e-09),
-        std::make_tuple(123.2, 0.1, 0.0000002, 8.9793855544322227e-10),
-        std::make_tuple(900.318, 0.0, 0.002, 1.6661917508151922e-11),
-        std::make_tuple(1500.1, 1.5, 0.015, 4.1994847649407481e-13),
-        std::make_tuple(1550., 1.3, 0.0015, 1.4861192718438113e-12),
-        std::make_tuple(1999.0, 1.2, 0.00015, 1.2005148230934354e-12),
-        std::make_tuple(1999.99, 1.0, 0.000015, 1.7882528400488737e-12),
-        std::make_tuple(2900., 0.8, 0.15, 1.0789632615680178e-12));
+        std::make_tuple(0.1, 0.0, 0.0003, 0.00023812637773177993),
+        std::make_tuple(0.5, 0.01, 0.00003, 8.032906227025762e-06),
+        std::make_tuple(1.0, 0.036, 0.000003, 1.9681872400314727e-06),
+        std::make_tuple(1.3, 0.1, 0.0000003, 1.1549605319480406e-06),
+        std::make_tuple(1.5, 0.12, 0.003, 8.638723207502881e-07),
+        std::make_tuple(2.1, 0.0, 0.0001, 4.421772477726101e-07),
+        std::make_tuple(3.7, 0.1, 0.00001, 1.4115949830285058e-07),
+        std::make_tuple(5.0, 0.2, 0.000001, 7.59844140778317e-08),
+        std::make_tuple(10.0, 0.3, 0.0000001, 1.8477988598775433e-08),
+        std::make_tuple(22.3, 0.4, 0.001, 3.5744322869353774e-09),
+        std::make_tuple(28.8, 0.5, 0.0002, 2.041644755010614e-09),
+        std::make_tuple(30.9, 0.4, 0.00002, 1.8613671487796297e-09),
+        std::make_tuple(51.7, 0.2, 0.000002, 7.072470298221072e-10),
+        std::make_tuple(123.2, 0.1, 0.0000002, 1.262805495346014e-10),
+        std::make_tuple(900.318, 0.0, 0.002, 2.343229485441852e-12),
+        std::make_tuple(1500.1, 1.5, 0.015, 5.905896797327537e-14),
+        std::make_tuple(1550., 1.3, 0.0015, 2.089986638671121e-13),
+        std::make_tuple(1999.0, 1.2, 0.00015, 1.6883301275535856e-13),
+        std::make_tuple(1999.99, 1.0, 0.000015, 2.5148886856374933e-13),
+        std::make_tuple(2900., 0.8, 0.15, 1.5173874957535507e-13));
     for (size_t j = 0; j < scanDev.cached_subrayDivergenceAngle_rad.size();
          ++j) {
       scanDev.cached_subrayDivergenceAngle_rad[j] = divergenceAngle;
@@ -182,8 +191,11 @@ TEST_CASE("Energy Models Test ")
 
   SECTION("Test Ring Cast Angles Match Beam Sample Quality Step")
   {
-    // ImprovedEnergyModel's ring boundaries are derived from
-    // beamDivergence_rad / beamSampleQuality (see its constructor). This
+    // ImprovedEnergyModel/NewEnergyModel's ring boundaries are derived from
+    // cached_halfDivergence_rad / (beamSampleQuality - 1) -- the ring-extent
+    // fix's BSQ-1 denominator, which makes the existing outermost subray
+    // land exactly on the true boresight-to-edge half-angle instead of
+    // falling short of it (see ScanningDevice::prepareSimulation). This
     // checks that ScanningDevice::prepareSimulation actually casts each
     // ring's subrays at that same angular step, so the two cannot silently
     // drift apart again.
@@ -217,7 +229,8 @@ TEST_CASE("Energy Models Test ")
     scanDev.setFWFSettings(fwf);
     scanner->prepareSimulation(false);
 
-    double const expectedStep = beamDiv / beamSampleQuality;
+    double const expectedStep =
+      scanDev.cached_halfDivergence_rad / (beamSampleQuality - 1);
     REQUIRE(scanDev.cached_subrayDivergenceAngle_rad.size() ==
             (size_t)beamSampleQuality);
     for (int i = 0; i < beamSampleQuality; ++i) {

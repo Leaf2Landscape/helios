@@ -69,9 +69,11 @@ public:
     // This can be a shallow or deep copy depending on your needs
     return std::make_shared<ScannerWrap>(*this);
   }
-  void prepareSimulation(bool const legacyEnergyModel) override
+  void prepareSimulation(bool const legacyEnergyModel,
+                        bool const useNewEnergyModel) override
   {
-    PYBIND11_OVERLOAD_PURE(void, Scanner, prepareSimulation, legacyEnergyModel);
+    PYBIND11_OVERLOAD_PURE(
+      void, Scanner, prepareSimulation, legacyEnergyModel, useNewEnergyModel);
   }
 
   std::shared_ptr<ScannerSettings> retrieveCurrentSettings(
@@ -391,6 +393,17 @@ public:
   void setBt2(double const bt2, size_t const idx) override
   {
     PYBIND11_OVERLOAD_PURE(void, Scanner, setBt2, bt2, idx);
+  }
+
+  double getHalfDivergence(size_t const idx) const override
+  {
+    PYBIND11_OVERLOAD_PURE(double, Scanner, getHalfDivergence, idx);
+  }
+
+  void setHalfDivergence(double const halfDivergence, size_t const idx) override
+  {
+    PYBIND11_OVERLOAD_PURE(
+      void, Scanner, setHalfDivergence, halfDivergence, idx);
   }
 
   double getDr2(size_t const idx) const override

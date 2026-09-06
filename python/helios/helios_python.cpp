@@ -1683,7 +1683,11 @@ PYBIND11_MODULE(_helios, m)
     .def("compute_received_power", &EnergyModel::computeReceivedPower)
     .def("compute_emitted_power", &EnergyModel::computeEmittedPower)
     .def("compute_target_area", &EnergyModel::computeTargetArea)
-    .def("compute_cross_section", &EnergyModel::computeCrossSection);
+    .def("compute_cross_section", &EnergyModel::computeCrossSection)
+    .def("compute_intensity_from_sigma",
+         &EnergyModel::computeIntensityFromSigma,
+         py::arg("target_range"), py::arg("sigma"),
+         py::arg("subray_radius_step"));
 
   py::class_<BaseEnergyModel, EnergyModel, std::shared_ptr<BaseEnergyModel>>
     base_energy_model(m, "BaseEnergyModel");
@@ -1692,7 +1696,11 @@ PYBIND11_MODULE(_helios, m)
     .def("compute_received_power", &BaseEnergyModel::computeReceivedPower)
     .def("compute_emitted_power", &BaseEnergyModel::computeEmittedPower)
     .def("compute_target_area", &BaseEnergyModel::computeTargetArea)
-    .def("compute_cross_section", &BaseEnergyModel::computeCrossSection);
+    .def("compute_cross_section", &BaseEnergyModel::computeCrossSection)
+    .def("compute_intensity_from_sigma",
+         &BaseEnergyModel::computeIntensityFromSigma,
+         py::arg("target_range"), py::arg("sigma"),
+         py::arg("subray_radius_step"));
 
   py::class_<ScanningDevice, std::shared_ptr<ScanningDevice>> scanning_device(
     m, "ScanningDevice");
@@ -1713,6 +1721,8 @@ PYBIND11_MODULE(_helios, m)
 
     .def_readwrite("cached_dr2", &ScanningDevice::cached_Dr2)
     .def_readwrite("cached_bt2", &ScanningDevice::cached_Bt2)
+    .def_readwrite("cached_half_divergence_rad",
+                   &ScanningDevice::cached_halfDivergence_rad)
     .def_readwrite("cached_subray_rotation",
                    &ScanningDevice::cached_subrayRotation)
     .def_readwrite("cached_subray_divergence",
@@ -1740,7 +1750,8 @@ PYBIND11_MODULE(_helios, m)
          &ScanningDevice::setHeadRelativeEmitterAttitude)
     .def("prepare_simulation",
          &ScanningDevice::prepareSimulation,
-         py::arg("legacyEnergyModel") = false)
+         py::arg("legacyEnergyModel") = false,
+         py::arg("useNewEnergyModel") = false)
     .def("configure_beam", &ScanningDevice::configureBeam)
     .def("calcAtmosphericAttenuation",
          &ScanningDevice::calcAtmosphericAttenuation)
@@ -1970,6 +1981,13 @@ PYBIND11_MODULE(_helios, m)
          py::arg("value"),
          py::arg("index"))
 
+    .def("get_specific_half_divergence",
+         py::overload_cast<size_t>(&Scanner::getHalfDivergence, py::const_),
+         py::arg("index"))
+    .def("set_specific_half_divergence",
+         py::overload_cast<double, size_t>(&Scanner::setHalfDivergence),
+         py::arg("value"),
+         py::arg("index"))
     .def("get_specific_dr2",
          py::overload_cast<size_t>(&Scanner::getDr2, py::const_),
          py::arg("index"))
@@ -2133,6 +2151,9 @@ PYBIND11_MODULE(_helios, m)
                   py::overload_cast<>(&Scanner::getBt2, py::const_),
                   py::overload_cast<double>(&Scanner::setBt2))
 
+    .def_property("half_divergence",
+                  py::overload_cast<>(&Scanner::getHalfDivergence, py::const_),
+                  py::overload_cast<double>(&Scanner::setHalfDivergence))
     .def_property("dr2",
                   py::overload_cast<>(&Scanner::getDr2, py::const_),
                   py::overload_cast<double>(&Scanner::setDr2))
@@ -2289,6 +2310,12 @@ PYBIND11_MODULE(_helios, m)
       [](const PyHeliosSimulation& self) { return self.legacyEnergyModel; },
       [](PyHeliosSimulation& self, bool value) {
         self.legacyEnergyModel = value;
+      })
+    .def_property(
+      "use_new_energy_model",
+      [](const PyHeliosSimulation& self) { return self.useNewEnergyModel; },
+      [](PyHeliosSimulation& self, bool value) {
+        self.useNewEnergyModel = value;
       })
     .def_property(
       "export_to_file",
@@ -2554,6 +2581,10 @@ PYBIND11_MODULE(_helios, m)
     .def("get_bt2", &SingleScanner::getBt2, py::arg("index"))
     .def("set_bt2", &SingleScanner::setBt2, py::arg("value"), py::arg("index"))
 
+    .def("get_half_divergence", &SingleScanner::getHalfDivergence,
+         py::arg("index"))
+    .def("set_half_divergence", &SingleScanner::setHalfDivergence,
+         py::arg("value"), py::arg("index"))
     .def("get_dr2", &SingleScanner::getDr2, py::arg("index"))
     .def("set_dr2", &SingleScanner::setDr2, py::arg("value"), py::arg("index"))
 
@@ -2653,7 +2684,8 @@ PYBIND11_MODULE(_helios, m)
     .def("on_leg_complete", &MultiScanner::onLegComplete)
     .def("prepare_simulation",
          &MultiScanner::prepareSimulation,
-         py::arg("legacy_energy_model") = 0)
+         py::arg("legacy_energy_model") = 0,
+         py::arg("use_new_energy_model") = 0)
     .def("apply_settings",
          &MultiScanner::applySettings,
          py::arg("settings"),
@@ -2853,6 +2885,10 @@ PYBIND11_MODULE(_helios, m)
     .def("get_bt2", &MultiScanner::getBt2, py::arg("idx"))
     .def("set_bt2", &MultiScanner::setBt2, py::arg("bt2"), py::arg("idx"))
 
+    .def("get_half_divergence", &MultiScanner::getHalfDivergence,
+         py::arg("idx"))
+    .def("set_half_divergence", &MultiScanner::setHalfDivergence,
+         py::arg("half_divergence"), py::arg("idx"))
     .def("get_dr2", &MultiScanner::getDr2, py::arg("idx"))
     .def("set_dr2", &MultiScanner::setDr2, py::arg("dr2"), py::arg("idx"))
 
@@ -2905,12 +2941,14 @@ PYBIND11_MODULE(_helios, m)
                   std::shared_ptr<PulseThreadPoolInterface>,
                   int,
                   std::string,
+                  bool,
                   bool>(),
          py::arg("parallelizationStrategy"),
          py::arg("pulseThreadPoolInterface"),
          py::arg("chunkSize"),
          py::arg("fixedGpsTimeStart") = "",
-         py::arg("legacyEnergyModel") = false)
+         py::arg("legacyEnergyModel") = false,
+         py::arg("useNewEnergyModel") = false)
 
     .def_readwrite("current_leg_index", &Simulation::mCurrentLegIndex)
     .def_readwrite("is_finished", &Simulation::finished)
@@ -3006,6 +3044,7 @@ PYBIND11_MODULE(_helios, m)
                   bool,
                   bool,
                   bool,
+                  bool,
                   std::shared_ptr<helios::filems::FMSFacade>>(),
          py::arg("survey"),
          py::arg("parallelizationStrategy"),
@@ -3013,6 +3052,7 @@ PYBIND11_MODULE(_helios, m)
          py::arg("chunkSize"),
          py::arg("fixedGpsTimeStart"),
          py::arg("legacyEnergyModel"),
+         py::arg("useNewEnergyModel") = false,
          py::arg("exportToFile") = true,
          py::arg("disableShutdown") = false,
          py::arg("fms") = nullptr)

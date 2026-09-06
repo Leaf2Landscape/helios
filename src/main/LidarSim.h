@@ -57,6 +57,9 @@ public:
    *  split point when SAH or the number of samples if fast SAH is used
    * @param legacyEnergyModel Whether to use the legacy energy model (true)
    *  or not (false).
+   * @param useNewEnergyModel Whether to use NewEnergyModel (true) instead
+   *  of ImprovedEnergyModel (false, the default) -- ignored if
+   *  legacyEnergyModel is true, which takes precedence.
    */
   void init(std::string surveyPath,
             std::vector<std::string> assetsPath,
@@ -82,7 +85,8 @@ public:
             size_t kdtJobs = 1,
             size_t kdtGeomJobs = 1,
             size_t sahLossNodes = 21,
-            bool legacyEnergyModel = true);
+            bool legacyEnergyModel = true,
+            bool useNewEnergyModel = false);
 
   /**
    * @brief Release the resources of the lidar simulation (typically this

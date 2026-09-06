@@ -34,7 +34,7 @@ SERIALIZATION_FORMAT_MAJOR_VERSION = 0
 # Bump this every time you change the serialization format. Alongside
 # this bump, you should adapt the schema in python/helios/data/serialization_schema.json
 # and add a new migration as described below.
-SERIALIZATION_FORMAT_MINOR_VERSION = 0
+SERIALIZATION_FORMAT_MINOR_VERSION = 1
 
 # The constant used to signal that a model field is serialized in a different file
 _MODEL_REFERENCE_KEY = "model_ref"
@@ -78,15 +78,24 @@ def register_migration(from_minor_version: int):
 # Minor version migrations. Add one per new minor version.
 #
 
-# Example first migration:
-# @register_migration(from_minor_version=0)
-# def _migrate_v0_to_v1(document: dict[str, Any]) -> dict[str, Any]:
-#     migrated = dict(document)
-#
-#     # Do something with migrated
-#
-#     migrated["serialization_minor_version"] = 1
-#     return migrated
+@register_migration(from_minor_version=0)
+def _migrate_v0_to_v1(document: dict[str, Any]) -> dict[str, Any]:
+    """Migrate from minor version 0 to 1.
+
+    Adds ``ExecutionSettings.use_new_energy_model`` (selects ``NewEnergyModel``
+    over ``ImprovedEnergyModel``). No data backfill is needed: the field
+    defaults to ``False`` -- matching every pre-existing document's actual
+    behavior -- and the schema does not mark it required, so a document
+    saved under version 0 (missing the key entirely) already loads and
+    deserializes correctly. This migration exists only to record the format
+    bump, applied uniformly regardless of ``document["model_class"]`` since
+    this migration is run against every document node in a loaded tree, not
+    just ``ExecutionSettings`` ones.
+    """
+
+    migrated = dict(document)
+    migrated["serialization_minor_version"] = 1
+    return migrated
 
 
 def _normalize_provenance_value(value: Any):
